@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { LessonSidebar } from "@/components/learn/lesson-sidebar";
+import { CompleteButton } from "@/components/learn/complete-button";
 import type { Module, LessonWithModule } from "@/content/curriculum";
 
 type Props = {
@@ -26,47 +27,13 @@ export function LessonLayout({
 }: Props) {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar */}
+      {/* Sidebar — client component reads localStorage for progress */}
       <aside className="w-64 shrink-0 border-r border-border overflow-y-auto bg-sidebar">
-        <div className="p-4 space-y-6">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-sm font-semibold text-foreground hover:text-primary transition-colors"
-          >
-            <BookOpen className="size-4" />
-            API Learning
-          </Link>
-
-          {curriculum.map((mod) => (
-            <div key={mod.slug} className="space-y-1">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-2">
-                {mod.title}
-              </p>
-              <ul className="space-y-0.5">
-                {mod.lessons.map((lesson) => {
-                  const isActive =
-                    mod.slug === currentModuleSlug &&
-                    lesson.slug === currentLessonSlug;
-                  return (
-                    <li key={lesson.slug}>
-                      <Link
-                        href={`/learn/${mod.slug}/${lesson.slug}`}
-                        className={cn(
-                          "flex items-center px-2 py-1.5 rounded-md text-sm transition-colors",
-                          isActive
-                            ? "bg-accent text-accent-foreground font-medium"
-                            : "text-muted-foreground hover:bg-accent/60 hover:text-foreground"
-                        )}
-                      >
-                        <span className="truncate">{lesson.title}</span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </div>
+        <LessonSidebar
+          curriculum={curriculum}
+          currentModuleSlug={currentModuleSlug}
+          currentLessonSlug={currentLessonSlug}
+        />
       </aside>
 
       {/* Main content */}
@@ -74,6 +41,18 @@ export function LessonLayout({
         <div className="max-w-3xl mx-auto px-8 py-10">
           <article>{children}</article>
           <Separator className="my-8" />
+
+          {/* Mark complete / incomplete */}
+          <div className="flex items-center justify-between mb-6">
+            <CompleteButton
+              moduleSlug={currentModuleSlug}
+              lessonSlug={currentLessonSlug}
+            />
+            <span className="text-xs text-muted-foreground italic">
+              {lessonTitle}
+            </span>
+          </div>
+
           {/* Prev / Next nav */}
           <div className="flex items-center justify-between">
             {prev ? (
