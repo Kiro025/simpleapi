@@ -4,6 +4,7 @@ import { CodeBlock } from "@/components/learn/code-block";
 import { Callout } from "@/components/learn/callout";
 import { MethodBadge } from "@/components/learn/method-badge";
 import { MonacoEditor } from "@/components/learn/monaco-editor";
+import { QuizCard } from "@/components/learn/quiz-card";
 
 export function useMDXComponents(): MDXComponents {
   return {
@@ -99,5 +100,6 @@ export function useMDXComponents(): MDXComponents {
     Callout,
     MethodBadge,
     MonacoEditor,
+    QuizCard,
   };
 }

@@ -140,6 +140,20 @@ In REST, route parameters identify a specific resource instance. The convention:
 
 The colon syntax (`:id`) is Express's convention. Other frameworks use `{id}`, `<id>`, or `[id]` — but the concept is universal.
 
+<QuizCard
+  question="In Express, what does `app.use(express.json())` do?"
+  choices={["Starts the HTTP server on port 3000", "Converts all responses to JSON automatically", "Parses incoming request bodies as JSON so req.body is available", "Adds JSON syntax highlighting to server logs"]}
+  correct={2}
+  explanation="express.json() is middleware that parses the raw request body and makes it available as req.body. Without it, req.body is undefined — you can't read any JSON a client sends you."
+/>
+
+<QuizCard
+  question="In the route `app.get('/users/:id', handler)`, what does `req.params.id` contain when a client hits `/users/42`?"
+  choices={["The number 42", "The string '42'", "The query string value", "The request body's id field"]}
+  correct={1}
+  explanation="Route parameters extracted by Express are always strings, even if the URL segment looks like a number. So req.params.id is '42', not 42. That's why the Express example does parseInt(req.params.id) before comparing to stored IDs."
+/>
+
 ## What's Next
 
 Now that you understand the basics, the next topics to explore are:

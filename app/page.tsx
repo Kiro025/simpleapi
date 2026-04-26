@@ -40,7 +40,7 @@ export default function HomePage() {
               "radial-gradient(ellipse 80% 60% at 20% 0%, oklch(0.52 0.22 264 / 0.08) 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 80% 100%, oklch(0.65 0.18 290 / 0.07) 0%, transparent 55%)",
           }}
         />
-        <div className="max-w-4xl mx-auto px-6 py-20 space-y-7 animate-fade-up">
+        <div className="max-w-4xl mx-auto px-6 py-10 space-y-5 animate-fade-up">
           {/* Badge */}
           <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/8 px-3 py-1 text-xs font-medium text-primary">
             <Zap className="size-3" />
@@ -83,7 +83,7 @@ export default function HomePage() {
         </div>
 
         {/* Feature chips */}
-        <div className="max-w-4xl mx-auto px-6 pb-10 flex flex-wrap gap-2 animate-fade-up" style={{ animationDelay: "0.1s" }}>
+        <div className="max-w-4xl mx-auto px-6 pb-6 flex flex-wrap gap-2 animate-fade-up" style={{ animationDelay: "0.1s" }}>
           {[
             { icon: Globe, label: "Live HTTP playground" },
             { icon: Terminal, label: "Real API endpoints" },
@@ -101,7 +101,7 @@ export default function HomePage() {
       </section>
 
       {/* Curriculum */}
-      <main className="max-w-4xl mx-auto px-6 py-14 space-y-8">
+      <main className="max-w-4xl mx-auto px-6 py-8 space-y-6">
         <div>
           <h2 className="text-2xl font-bold tracking-tight text-foreground">
             Curriculum

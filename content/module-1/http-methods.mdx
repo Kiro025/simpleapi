@@ -58,6 +58,20 @@ A successful POST returns `201 Created`.
   description="Replace all fields of user #2. Notice you must send the complete resource."
 />
 
+## PATCH — Partial Updates
+
+<MethodBadge method="PATCH" /> updates **part** of a resource. Unlike PUT, you only send the fields you want to change — everything else stays as-is.
+
+<RequestPlayground
+  defaultMethod="PATCH"
+  defaultUrl="/api/playground/users/1"
+  defaultBody={`{
+  "email": "alice-new@example.com"
+}`}
+  title="PATCH user #1's email"
+  description="Only the email changes. The name stays as-is. Compare this to PUT, which would wipe the name if you omit it."
+/>
+
 ## DELETE — Removing Data
 
 <MethodBadge method="DELETE" /> removes a resource. A successful delete returns `204 No Content` — there's nothing to send back.
@@ -77,3 +91,17 @@ Using the right method isn't just convention — it communicates intent to every
 - A `DELETE` to `/users/5` is clear; no ambiguity about what happens
 
 APIs that stuff everything into `POST` (like old RPC-style services) are harder to understand and harder to cache because every call might change state.
+
+<QuizCard
+  question="You want to update only the email address of a user without affecting their name or role. Which method should you use?"
+  choices={["GET", "POST", "PUT", "PATCH"]}
+  correct={3}
+  explanation="PATCH is designed for partial updates — you send only the fields you want to change. PUT replaces the entire resource, so omitting the name and role would wipe them out."
+/>
+
+<QuizCard
+  question="Which of these statements about idempotency is correct?"
+  choices={["POST is idempotent because you can post the same data twice", "DELETE is idempotent because the end result (resource gone) is the same", "GET is not idempotent because it reads data", "PUT is not idempotent because it changes data"]}
+  correct={1}
+  explanation="Idempotent means calling it multiple times gives the same result. DELETE is idempotent — after the first call the resource is gone, and subsequent calls have the same outcome (resource still gone). POST is not idempotent because each call creates a new resource."
+/>

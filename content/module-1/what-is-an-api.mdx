@@ -56,3 +56,17 @@ APIs are everywhere:
 - When you get a weather update in an app, it's calling a weather service's API
 
 Building your own API means any other system — a mobile app, a third-party service, another server — can interact with your data and logic in a structured way.
+
+<QuizCard
+  question="In the client-server model, which side handles the request and sends back a response?"
+  choices={["Client", "Server", "Both equally", "The network layer"]}
+  correct={1}
+  explanation="The server handles all incoming requests and sends responses. The client (browser, app, another service) is only responsible for making requests — it never processes them."
+/>
+
+<QuizCard
+  question="What does the 'Interface' in API mean?"
+  choices={["A visual user interface", "The public-facing contract between client and server", "The programming language used", "The database behind the server"]}
+  correct={1}
+  explanation="An interface is the public-facing layer that defines what clients can do and what format to use — without exposing the internal implementation. The server can change its internals freely as long as the interface stays consistent."
+/>

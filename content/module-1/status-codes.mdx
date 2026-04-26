@@ -70,3 +70,26 @@ Try triggering a **400**:
 The status code is the first thing a client reads. It answers: "did it work?" before the client even parses the body.
 
 A well-designed API uses status codes correctly so clients can make decisions without reading the body — for example, retrying on 503 but not on 400.
+
+Try triggering a **500** (simulated server error):
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/error"
+  title="500 Internal Server Error"
+  description="This endpoint always returns a 500 to demonstrate what a server-side failure looks like."
+/>
+
+<QuizCard
+  question="Your API call returns 403. What does this tell you?"
+  choices={["The resource doesn't exist", "The server crashed", "You're authenticated but not allowed to perform this action", "You need to log in first"]}
+  correct={2}
+  explanation="403 Forbidden means the server knows who you are (you're authenticated) but you don't have permission for this action. 401 Unauthorized is what you get when you haven't authenticated at all."
+/>
+
+<QuizCard
+  question="Which status code should a successful POST that creates a new resource return?"
+  choices={["200 OK", "201 Created", "204 No Content", "202 Accepted"]}
+  correct={1}
+  explanation="201 Created is the correct code after a POST that creates a new resource. 200 OK is for successful reads (GET) and updates (PUT/PATCH). 204 No Content is for operations that succeed but have nothing to return, like DELETE."
+/>

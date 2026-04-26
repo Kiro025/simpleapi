@@ -48,11 +48,11 @@ export function LessonLayout({
 
         {/* Scrollable content */}
         <main className="flex-1 overflow-y-auto">
-          <div className="max-w-2xl mx-auto px-8 py-10 animate-fade-up">
+          <div className="max-w-2xl mx-auto px-8 py-8 animate-fade-up">
             <article className="prose-lesson">{children}</article>
 
             {/* Bottom actions */}
-            <div className="mt-12 pt-8 border-t border-border/60 space-y-6">
+            <div className="mt-8 pt-6 border-t border-border/60 space-y-4">
               <CompleteButton
                 moduleSlug={currentModuleSlug}
                 lessonSlug={currentLessonSlug}

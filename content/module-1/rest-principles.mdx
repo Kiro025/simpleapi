@@ -66,3 +66,17 @@ The demo API you've been using follows REST conventions:
 />
 
 Notice the `_links` field in the response — that's the beginning of HATEOAS. It tells the client where to look for related resources, rather than requiring the client to already know the URL structure.
+
+<QuizCard
+  question="REST requires that each request contains all the information the server needs, and the server stores no session state between requests. Which constraint is this?"
+  choices={["Client-Server Separation", "Statelessness", "Cacheability", "Uniform Interface"]}
+  correct={1}
+  explanation="Statelessness means the server is memoryless between requests. The client sends everything needed — auth tokens, preferences, context — on every single call. This makes servers easier to scale horizontally since any server can handle any request."
+/>
+
+<QuizCard
+  question="Which URL follows RESTful conventions best?"
+  choices={["/getUser?id=5", "/fetchUserById/5", "/users/5", "/user-operations?action=read&id=5"]}
+  correct={2}
+  explanation="RESTful URLs are nouns that identify resources. /users/5 clearly identifies a specific user resource — the HTTP method (GET, PUT, DELETE) carries the action. Verbs like 'getUser' or 'fetchUserById' in URLs break the Uniform Interface constraint."
+/>
