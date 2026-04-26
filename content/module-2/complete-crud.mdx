@@ -1,0 +1,284 @@
+# Complete CRUD in Express
+
+You've already built GET and POST. Now add the remaining three methods: **PUT**, **PATCH**, and **DELETE**. Together, all five give you full CRUD — **C**reate, **R**ead, **U**pdate, **D**elete.
+
+## Why All Five Methods Matter
+
+| Operation | HTTP Method | Express call |
+|-----------|-------------|-------------|
+| Create | POST | `app.post()` |
+| Read (list) | GET | `app.get('/tasks')` |
+| Read (one) | GET | `app.get('/tasks/:id')` |
+| Replace | PUT | `app.put('/tasks/:id')` |
+| Partial update | PATCH | `app.patch('/tasks/:id')` |
+| Delete | DELETE | `app.delete('/tasks/:id')` |
+
+## PUT — Replace a Resource
+
+<MethodBadge method="PUT" /> replaces an **entire** resource. You send every field; whatever you omit gets overwritten with defaults or wiped. This is different from PATCH, which only touches the fields you send.
+
+```js filename="server.js"
+// PUT /tasks/:id — full replacement
+app.put('/tasks/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const { title, status, priority } = req.body
+
+  if (!title) {
+    return res.status(422).json({
+      error: 'Validation failed',
+      message: "'title' is required",
+      field: 'title'
+    })
+  }
+
+  const idx = tasks.findIndex(t => t.id === id)
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Task not found' })
+  }
+
+  // Completely replace the resource (keep the id)
+  tasks[idx] = {
+    id,
+    title,
+    status: status ?? 'todo',
+    priority: priority ?? 'medium',
+    createdAt: tasks[idx].createdAt  // preserve creation time
+  }
+
+  res.json({ data: tasks[idx] })
+})
+```
+
+Try it — replace task #2 entirely:
+
+<RequestPlayground
+  defaultMethod="PUT"
+  defaultUrl="/api/playground/tasks/2"
+  defaultBody={`{
+  "title": "Build the Express server scaffold",
+  "status": "done",
+  "priority": "high"
+}`}
+  title="PUT /tasks/2 — full replacement"
+  description="Notice you must send all fields. Try omitting 'priority' — it defaults back to 'medium'."
+/>
+
+## PATCH — Partial Update
+
+<MethodBadge method="PATCH" /> only changes the fields you send. Everything else stays as-is. This is the safer choice when you only want to update one field.
+
+```js filename="server.js"
+// PATCH /tasks/:id — partial update
+app.patch('/tasks/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const idx = tasks.findIndex(t => t.id === id)
+
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Task not found' })
+  }
+
+  // Spread existing task, then override only provided fields
+  // The 'id' at the end ensures id can never be overwritten
+  tasks[idx] = { ...tasks[idx], ...req.body, id }
+
+  res.json({ data: tasks[idx] })
+})
+```
+
+<Callout variant="warning" title="Spread order matters">
+`{ ...tasks[idx], ...req.body, id }` — the `id` at the end prevents a malicious client from changing the task's id by sending `"id": 999` in the body.
+</Callout>
+
+Try patching just the status:
+
+<RequestPlayground
+  defaultMethod="PATCH"
+  defaultUrl="/api/playground/tasks/3"
+  defaultBody={`{
+  "status": "in-progress"
+}`}
+  title="PATCH /tasks/3 — mark as in-progress"
+  description="Only the status changes. The title and priority remain exactly as they were. Then GET /tasks/3 to confirm."
+/>
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/tasks/3"
+  title="GET /tasks/3 — verify the patch"
+  description="Confirm the status changed but nothing else was affected."
+/>
+
+## DELETE — Remove a Resource
+
+<MethodBadge method="DELETE" /> removes a resource. A successful delete returns **204 No Content** — there's nothing to send back, so the body is empty.
+
+```js filename="server.js"
+// DELETE /tasks/:id — remove task
+app.delete('/tasks/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const idx = tasks.findIndex(t => t.id === id)
+
+  if (idx === -1) {
+    return res.status(404).json({ error: 'Task not found' })
+  }
+
+  tasks.splice(idx, 1)  // remove 1 element at position idx
+  res.status(204).end() // 204 = success, no body
+})
+```
+
+<RequestPlayground
+  defaultMethod="DELETE"
+  defaultUrl="/api/playground/tasks/4"
+  title="DELETE /tasks/4"
+  description="Notice the empty response body — 204 No Content. Then GET /api/playground/tasks to confirm it's gone."
+/>
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/tasks"
+  title="GET /tasks — confirm deletion"
+  description="Task #4 should no longer appear in the list."
+/>
+
+## The Complete 5-Method Server
+
+Here's everything together — GET, POST, PUT, PATCH, and DELETE — in a single file:
+
+```js filename="server.js"
+const express = require('express')
+const app = express()
+app.use(express.json())
+
+const tasks = [
+  { id: 1, title: 'Research REST design', status: 'done', priority: 'high', createdAt: new Date().toISOString() },
+  { id: 2, title: 'Build Express scaffold', status: 'in-progress', priority: 'high', createdAt: new Date().toISOString() },
+]
+let nextId = 3
+
+// GET /tasks — list all
+app.get('/tasks', (req, res) => {
+  res.json({ data: tasks, total: tasks.length })
+})
+
+// GET /tasks/:id — get one
+app.get('/tasks/:id', (req, res) => {
+  const task = tasks.find(t => t.id === parseInt(req.params.id))
+  if (!task) return res.status(404).json({ error: 'Task not found' })
+  res.json({ data: task })
+})
+
+// POST /tasks — create
+app.post('/tasks', (req, res) => {
+  const { title, status = 'todo', priority = 'medium' } = req.body
+  if (!title) return res.status(422).json({ error: 'title is required' })
+  const task = { id: nextId++, title, status, priority, createdAt: new Date().toISOString() }
+  tasks.push(task)
+  res.status(201).json({ data: task })
+})
+
+// PUT /tasks/:id — full replace
+app.put('/tasks/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const idx = tasks.findIndex(t => t.id === id)
+  if (idx === -1) return res.status(404).json({ error: 'Task not found' })
+  if (!req.body.title) return res.status(422).json({ error: 'title is required' })
+  tasks[idx] = { id, title: req.body.title, status: req.body.status ?? 'todo', priority: req.body.priority ?? 'medium', createdAt: tasks[idx].createdAt }
+  res.json({ data: tasks[idx] })
+})
+
+// PATCH /tasks/:id — partial update
+app.patch('/tasks/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const idx = tasks.findIndex(t => t.id === id)
+  if (idx === -1) return res.status(404).json({ error: 'Task not found' })
+  tasks[idx] = { ...tasks[idx], ...req.body, id }
+  res.json({ data: tasks[idx] })
+})
+
+// DELETE /tasks/:id — remove
+app.delete('/tasks/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const idx = tasks.findIndex(t => t.id === id)
+  if (idx === -1) return res.status(404).json({ error: 'Task not found' })
+  tasks.splice(idx, 1)
+  res.status(204).end()
+})
+
+app.listen(3000, () => console.log('API running on http://localhost:3000'))
+```
+
+<MonacoEditor
+  language="javascript"
+  filename="server.js"
+  height={420}
+  readOnly={false}
+  initialCode={`const express = require('express')
+const app = express()
+app.use(express.json())
+
+const tasks = [
+  { id: 1, title: 'Research REST design', status: 'done', priority: 'high', createdAt: new Date().toISOString() },
+  { id: 2, title: 'Build Express scaffold', status: 'in-progress', priority: 'high', createdAt: new Date().toISOString() },
+]
+let nextId = 3
+
+app.get('/tasks', (req, res) => {
+  res.json({ data: tasks, total: tasks.length })
+})
+
+app.get('/tasks/:id', (req, res) => {
+  const task = tasks.find(t => t.id === parseInt(req.params.id))
+  if (!task) return res.status(404).json({ error: 'Task not found' })
+  res.json({ data: task })
+})
+
+app.post('/tasks', (req, res) => {
+  const { title, status = 'todo', priority = 'medium' } = req.body
+  if (!title) return res.status(422).json({ error: 'title is required' })
+  const task = { id: nextId++, title, status, priority, createdAt: new Date().toISOString() }
+  tasks.push(task)
+  res.status(201).json({ data: task })
+})
+
+app.put('/tasks/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const idx = tasks.findIndex(t => t.id === id)
+  if (idx === -1) return res.status(404).json({ error: 'Task not found' })
+  if (!req.body.title) return res.status(422).json({ error: 'title is required' })
+  tasks[idx] = { id, title: req.body.title, status: req.body.status ?? 'todo', priority: req.body.priority ?? 'medium', createdAt: tasks[idx].createdAt }
+  res.json({ data: tasks[idx] })
+})
+
+app.patch('/tasks/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const idx = tasks.findIndex(t => t.id === id)
+  if (idx === -1) return res.status(404).json({ error: 'Task not found' })
+  tasks[idx] = { ...tasks[idx], ...req.body, id }
+  res.json({ data: tasks[idx] })
+})
+
+app.delete('/tasks/:id', (req, res) => {
+  const id = parseInt(req.params.id)
+  const idx = tasks.findIndex(t => t.id === id)
+  if (idx === -1) return res.status(404).json({ error: 'Task not found' })
+  tasks.splice(idx, 1)
+  res.status(204).end()
+})
+
+app.listen(3000, () => console.log('API running on http://localhost:3000'))`}
+/>
+
+<QuizCard
+  question="You call PUT /tasks/1 with only `{ 'title': 'New title' }` — no status or priority. What happens to the existing status and priority values?"
+  choices={["They stay the same", "They get deleted", "They reset to defaults", "The server returns a 400 error"]}
+  correct={2}
+  explanation="PUT replaces the entire resource. Fields you don't send get reset to defaults (or lost entirely if there are none). That's the key difference from PATCH — use PUT when you're intentionally replacing the whole resource, PATCH when you're updating only specific fields."
+/>
+
+<QuizCard
+  question="What status code should a successful DELETE return?"
+  choices={["200 OK", "201 Created", "204 No Content", "200 with empty body"]}
+  correct={2}
+  explanation="204 No Content is the correct response for a successful DELETE. There's nothing to send back (the resource is gone), so the body is empty. 200 OK implies there's a response body, which isn't the case after deletion."
+/>

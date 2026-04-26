@@ -1,0 +1,262 @@
+# Query Parameters & Filtering
+
+So far your list endpoints return everything. Real APIs filter, sort, and paginate results — and the mechanism for all of that is **query parameters**.
+
+## req.params vs req.query
+
+These two are easy to confuse, but they serve different purposes:
+
+| | `req.params` | `req.query` |
+|--|-------------|-------------|
+| **Source** | URL path segments | URL after the `?` |
+| **Example URL** | `/tasks/42` | `/tasks?status=done` |
+| **Usage** | Identify a specific resource | Modify how a collection is returned |
+| **Required?** | Yes (part of the route pattern) | Optional |
+
+```js filename="server.js"
+// req.params: /tasks/:id
+app.get('/tasks/:id', (req, res) => {
+  console.log(req.params.id) // '42' (always a string)
+})
+
+// req.query: /tasks?status=done&priority=high
+app.get('/tasks', (req, res) => {
+  console.log(req.query.status)   // 'done'
+  console.log(req.query.priority) // 'high'
+})
+```
+
+<Callout variant="warning" title="Query params are always strings">
+`req.query.page` gives you `'1'` (string), not `1` (number). Always convert: `parseInt(req.query.page, 10)`.
+</Callout>
+
+## Filtering
+
+The most common use case — filter a collection based on a field value:
+
+```js filename="server.js"
+// GET /tasks?status=done
+// GET /tasks?priority=high
+// GET /tasks?status=todo&priority=medium
+
+app.get('/tasks', (req, res) => {
+  const { status, priority } = req.query
+
+  let result = [...tasks] // copy so we don't mutate the original
+
+  if (status) {
+    result = result.filter(t => t.status === status)
+  }
+
+  if (priority) {
+    result = result.filter(t => t.priority === priority)
+  }
+
+  res.json({ data: result, total: result.length })
+})
+```
+
+Try filtering the demo tasks:
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/tasks?status=todo"
+  title="Filter by status"
+  description="Returns only tasks with status='todo'. Try changing to 'in-progress' or 'done'."
+/>
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/tasks?priority=high"
+  title="Filter by priority"
+  description="Returns only high-priority tasks. Try combining: /tasks?priority=high&status=done"
+/>
+
+## Sorting
+
+Accept a `sort` field and optional `order` direction:
+
+```js filename="server.js"
+// GET /tasks?sort=createdAt&order=desc
+// GET /tasks?sort=priority&order=asc
+
+app.get('/tasks', (req, res) => {
+  const { sort, order = 'asc' } = req.query
+  let result = [...tasks]
+
+  if (sort === 'createdAt') {
+    result.sort((a, b) => {
+      const diff = new Date(a.createdAt) - new Date(b.createdAt)
+      return order === 'desc' ? -diff : diff
+    })
+  }
+
+  if (sort === 'priority') {
+    const rank = { high: 3, medium: 2, low: 1 }
+    result.sort((a, b) => {
+      const diff = rank[a.priority] - rank[b.priority]
+      return order === 'desc' ? -diff : diff
+    })
+  }
+
+  res.json({ data: result, total: result.length })
+})
+```
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/tasks?sort=priority&order=desc"
+  title="Sort by priority (descending)"
+  description="High-priority tasks appear first. Try sort=createdAt&order=asc for oldest-first."
+/>
+
+## Pagination
+
+For large datasets, you don't want to return everything at once. The standard pattern uses `page` and `limit`:
+
+```js filename="server.js"
+// GET /tasks?page=1&limit=10
+
+app.get('/tasks', (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page ?? '1', 10))
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit ?? '10', 10)))
+
+  const total = tasks.length
+  const start = (page - 1) * limit
+  const data = tasks.slice(start, start + limit)
+  const pages = Math.ceil(total / limit)
+
+  res.json({
+    data,
+    meta: {
+      total,
+      page,
+      limit,
+      pages,
+      hasNext: page < pages,
+      hasPrev: page > 1,
+    }
+  })
+})
+```
+
+<Callout variant="tip" title="Cap the limit">
+Always set a maximum on `limit` — otherwise a client could request `?limit=1000000` and bring down your server. `Math.min(100, limit)` caps it at 100.
+</Callout>
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/tasks?page=1&limit=2"
+  title="Paginated task list"
+  description="Returns only 2 tasks at a time. The 'meta' object tells you total count, current page, and total pages. Try page=2."
+/>
+
+## Combining Everything
+
+Query params compose — clients can filter, sort, and paginate in a single request:
+
+```
+GET /tasks?status=todo&sort=priority&order=desc&page=1&limit=5
+```
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/tasks?status=todo&sort=priority&order=desc"
+  title="Filter + sort combined"
+  description="Only 'todo' tasks, sorted by priority descending. This is the query composition pattern."
+/>
+
+## Complete Handler
+
+```js filename="server.js"
+app.get('/tasks', (req, res) => {
+  const { status, priority, sort, order = 'asc' } = req.query
+  const page = Math.max(1, parseInt(req.query.page ?? '1', 10))
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit ?? '10', 10)))
+
+  // 1. Filter
+  let result = tasks.filter(t => {
+    if (status && t.status !== status) return false
+    if (priority && t.priority !== priority) return false
+    return true
+  })
+
+  // 2. Sort
+  const priorityRank = { high: 3, medium: 2, low: 1 }
+  if (sort === 'createdAt') {
+    result.sort((a, b) => {
+      const diff = new Date(a.createdAt) - new Date(b.createdAt)
+      return order === 'desc' ? -diff : diff
+    })
+  } else if (sort === 'priority') {
+    result.sort((a, b) => {
+      const diff = priorityRank[a.priority] - priorityRank[b.priority]
+      return order === 'desc' ? -diff : diff
+    })
+  }
+
+  // 3. Paginate
+  const total = result.length
+  const start = (page - 1) * limit
+  const data = result.slice(start, start + limit)
+
+  res.json({
+    data,
+    meta: { total, page, limit, pages: Math.ceil(total / limit) }
+  })
+})
+```
+
+<MonacoEditor
+  language="javascript"
+  filename="server.js"
+  height={320}
+  readOnly={false}
+  initialCode={`app.get('/tasks', (req, res) => {
+  const { status, priority, sort, order = 'asc' } = req.query
+  const page = Math.max(1, parseInt(req.query.page ?? '1', 10))
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit ?? '10', 10)))
+
+  let result = tasks.filter(t => {
+    if (status && t.status !== status) return false
+    if (priority && t.priority !== priority) return false
+    return true
+  })
+
+  const priorityRank = { high: 3, medium: 2, low: 1 }
+  if (sort === 'createdAt') {
+    result.sort((a, b) => {
+      const diff = new Date(a.createdAt) - new Date(b.createdAt)
+      return order === 'desc' ? -diff : diff
+    })
+  } else if (sort === 'priority') {
+    result.sort((a, b) => {
+      const diff = priorityRank[a.priority] - priorityRank[b.priority]
+      return order === 'desc' ? -diff : diff
+    })
+  }
+
+  const total = result.length
+  const start = (page - 1) * limit
+  const data = result.slice(start, start + limit)
+
+  res.json({
+    data,
+    meta: { total, page, limit, pages: Math.ceil(total / limit) }
+  })
+})`}
+/>
+
+<QuizCard
+  question="A client sends GET /tasks?status=done. How does `req.query.status` arrive in Express?"
+  choices={["As the boolean true", "As the number 1", "As the string 'done'", "As an object { status: 'done' }"]}
+  correct={2}
+  explanation="All query parameter values arrive as strings — even numbers. If a client sends ?page=2, req.query.page is '2', not 2. Always parse/convert query param values before using them."
+/>
+
+<QuizCard
+  question="What's the difference between /tasks/42 and /tasks?id=42 from a REST design standpoint?"
+  choices={["They're identical — use whichever is more convenient", "/tasks/42 is the RESTful way to identify a specific resource; query params are for filtering collections", "/tasks?id=42 is more efficient because query params are cached", "/tasks/42 only works for GET requests"]}
+  correct={1}
+  explanation="Path params (/tasks/42) identify a specific resource instance — this is the RESTful convention. Query params (?id=42) are for filtering, sorting, or modifying how a collection is returned. Mixing them up makes your API harder to understand and breaks caching behavior."
+/>

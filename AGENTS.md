@@ -20,14 +20,18 @@ An interactive API learning platform built in Next.js 16.2.4. The user (Kiro) is
 - `/` — Home page: curriculum overview, progress bar, resume CTA
 - `/learn/[module]/[lesson]` — Lesson viewer (statically generated via `generateStaticParams`)
 - `/api/playground/users` — GET (list), POST (create) — demo REST endpoint
-- `/api/playground/users/[id]` — GET, PUT, DELETE — demo REST endpoint
+- `/api/playground/users/[id]` — GET, PUT, PATCH, DELETE — demo REST endpoint
+- `/api/playground/tasks` — GET (list, supports ?status= ?priority= ?sort= ?order= ?page= ?limit=), POST (create)
+- `/api/playground/tasks/[id]` — GET, PUT, PATCH, DELETE
 - `/api/playground/echo` — GET, POST — echoes back the request
+- `/api/playground/error` — GET — always returns 500 (status codes lesson demo)
 
 ### Content
 - `content/curriculum.ts` — Source of truth for module/lesson ordering and metadata
 - `content/loader.ts` — **Static import map** for all MDX files (required for Turbopack — do NOT use dynamic template literals)
 - `content/module-1/` — 4 lessons: what-is-an-api, http-methods, status-codes, rest-principles
-- `content/module-2/` — 1 lesson: your-first-express-endpoint
+- `content/module-2/` — 6 lessons: your-first-express-endpoint, complete-crud, middleware, validation-and-errors, query-params-and-filtering, project-structure
+- `content/module-3/` — 3 lessons: design-your-api, build-the-tasks-api, api-best-practices
 
 ### Components (`components/learn/`)
 - `lesson-layout.tsx` — Server Component shell (sidebar + content)
@@ -54,8 +58,14 @@ All these work as JSX inside any `.mdx` file without importing:
 - `<RequestPlayground defaultMethod="GET" defaultUrl="/api/playground/users" title="..." description="..." defaultBody="..." />`
 - `<Callout variant="info|warning|success|tip" title="...">...</Callout>`
 - `<MethodBadge method="GET|POST|PUT|PATCH|DELETE" />`
-- `<MonacoEditor initialCode="..." language="javascript" height={300} filename="server.js" readOnly />`
+- `<MonacoEditor initialCode="..." language="javascript" height={300} filename="server.js" readOnly={false} />`
 - `<CodeBlock language="js" filename="server.js">...</CodeBlock>` (also used by fenced code blocks automatically)
+- `<QuizCard question="..." choices={[...]} correct={0} explanation="..." />`
+
+### Demo Data
+- `lib/demo-data.ts` — exports Users (alice, bob, carol) AND Tasks (4 seeded tasks with status/priority)
+- Task shape: `{ id, title, status: "todo"|"in-progress"|"done", priority: "low"|"medium"|"high", createdAt }`
+- Tasks endpoint supports query params: `?status=`, `?priority=`, `?sort=createdAt|priority`, `?order=asc|desc`, `?page=`, `?limit=`
 
 ## Key Patterns & Rules
 

@@ -1,0 +1,216 @@
+# Project Structure
+
+When you start building, everything goes in one `server.js`. That's fine for learning. But as soon as your API has more than a handful of routes, a single file becomes painful to navigate. This lesson covers how to split it cleanly.
+
+## The Problem with One File
+
+Here's what a monolithic `server.js` looks like once you have two resources:
+
+```
+server.js — 400 lines
+  ├── express setup
+  ├── data arrays (users, tasks)
+  ├── GET /users
+  ├── GET /users/:id
+  ├── POST /users
+  ├── PUT /users/:id
+  ├── PATCH /users/:id
+  ├── DELETE /users/:id
+  ├── GET /tasks
+  ├── GET /tasks/:id
+  ├── POST /tasks
+  ├── PUT /tasks/:id
+  ├── PATCH /tasks/:id
+  └── DELETE /tasks/:id
+```
+
+Finding the `PATCH /tasks/:id` handler means scrolling through 400 lines. Adding a third resource makes it 600.
+
+## Express Router
+
+`express.Router()` lets you group related routes into their own file, with their own middleware, and mount them at a prefix:
+
+```js filename="routes/tasks.js"
+const express = require('express')
+const router = express.Router()
+
+// Routes are relative to wherever the router is mounted
+router.get('/', (req, res) => {
+  res.json({ data: tasks, total: tasks.length })
+})
+
+router.get('/:id', (req, res) => {
+  // ...
+})
+
+router.post('/', (req, res) => {
+  // ...
+})
+
+module.exports = router
+```
+
+```js filename="server.js"
+const tasksRouter = require('./routes/tasks')
+
+// Mount at /tasks — all router routes become /tasks/...
+app.use('/tasks', tasksRouter)
+```
+
+Now `routes/tasks.js` owns everything about tasks routing.
+
+## Separating Controllers
+
+Mixing routing logic and business logic in the same function is another common pattern that becomes painful. The cleaner split:
+
+- **Routes** — what URL and method? Which handler?
+- **Controllers** — what should the handler actually do?
+
+```js filename="controllers/tasksController.js"
+const { tasks, addTask, findTask, updateTask, deleteTask } = require('../data/tasks')
+
+function list(req, res) {
+  res.json({ data: tasks, total: tasks.length })
+}
+
+function getOne(req, res) {
+  const task = findTask(parseInt(req.params.id))
+  if (!task) return res.status(404).json({ error: 'Task not found' })
+  res.json({ data: task })
+}
+
+function create(req, res) {
+  const { title, status = 'todo', priority = 'medium' } = req.body
+  if (!title) return res.status(422).json({ error: 'title is required' })
+  const task = addTask({ title, status, priority })
+  res.status(201).json({ data: task })
+}
+
+function replace(req, res) { /* PUT handler */ }
+function update(req, res) { /* PATCH handler */ }
+function remove(req, res) { /* DELETE handler */ }
+
+module.exports = { list, getOne, create, replace, update, remove }
+```
+
+```js filename="routes/tasks.js"
+const express = require('express')
+const router = express.Router()
+const tasks = require('../controllers/tasksController')
+
+router.get('/', tasks.list)
+router.get('/:id', tasks.getOne)
+router.post('/', tasks.create)
+router.put('/:id', tasks.replace)
+router.patch('/:id', tasks.update)
+router.delete('/:id', tasks.remove)
+
+module.exports = router
+```
+
+The routes file is now a clean mapping — method + path → handler. The controller file contains the logic.
+
+## A Clean Data Layer
+
+Your in-memory array is effectively your database. Give it its own module:
+
+```js filename="data/tasks.js"
+const tasks = [
+  { id: 1, title: 'Research REST', status: 'done', priority: 'high', createdAt: '...' },
+]
+let nextId = 2
+
+function findAll() { return tasks }
+function findById(id) { return tasks.find(t => t.id === id) }
+function create(data) { const t = { id: nextId++, ...data, createdAt: new Date().toISOString() }; tasks.push(t); return t }
+function update(id, data) { const idx = tasks.findIndex(t => t.id === id); if (idx === -1) return null; tasks[idx] = { ...tasks[idx], ...data }; return tasks[idx] }
+function remove(id) { const idx = tasks.findIndex(t => t.id === id); if (idx === -1) return false; tasks.splice(idx, 1); return true }
+
+module.exports = { findAll, findById, create, update, remove }
+```
+
+When you eventually add a real database, you only change `data/tasks.js` — the controllers and routes don't need to change.
+
+## The Full Folder Structure
+
+```
+my-api/
+├── server.js              ← entry point: setup, mount routes, listen
+├── routes/
+│   ├── tasks.js           ← route definitions for /tasks
+│   └── users.js           ← route definitions for /users
+├── controllers/
+│   ├── tasksController.js ← handler functions for tasks
+│   └── usersController.js ← handler functions for users
+├── data/
+│   ├── tasks.js           ← in-memory tasks store + CRUD helpers
+│   └── users.js           ← in-memory users store + CRUD helpers
+├── middleware/
+│   └── validate.js        ← reusable validation middleware
+└── package.json
+```
+
+```js filename="server.js"
+const express = require('express')
+const cors = require('cors')
+const morgan = require('morgan')
+const tasksRouter = require('./routes/tasks')
+const usersRouter = require('./routes/users')
+
+const app = express()
+
+app.use(cors())
+app.use(morgan('dev'))
+app.use(express.json())
+
+app.use('/tasks', tasksRouter)
+app.use('/users', usersRouter)
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err)
+  res.status(500).json({ error: 'Internal server error' })
+})
+
+app.listen(3000, () => console.log('API running on http://localhost:3000'))
+```
+
+This is a clean, scalable entry point. The main file only handles setup and wiring — all business logic lives in controllers.
+
+<MonacoEditor
+  language="javascript"
+  filename="routes/tasks.js"
+  height={220}
+  readOnly={false}
+  initialCode={`const express = require('express')
+const router = express.Router()
+const tasks = require('../controllers/tasksController')
+
+// Clean mapping: method + path → handler
+router.get('/', tasks.list)
+router.get('/:id', tasks.getOne)
+router.post('/', tasks.create)
+router.put('/:id', tasks.replace)
+router.patch('/:id', tasks.update)
+router.delete('/:id', tasks.remove)
+
+module.exports = router`}
+/>
+
+<Callout variant="info" title="When to split">
+You don't need this structure for a learning project or a tiny script. But once a single resource has more than ~5 routes, or you have 2+ resources, splitting into routes/controllers pays off immediately in readability and maintainability.
+</Callout>
+
+<QuizCard
+  question="In the routes/controllers/data pattern, what belongs in a controller file?"
+  choices={["URL patterns and HTTP method bindings", "Express setup, middleware registration, and app.listen()", "Handler functions — the logic that runs when a route is hit", "Database schemas and model definitions"]}
+  correct={2}
+  explanation="Controllers hold the handler functions — the code that actually runs when a request arrives. Routes own the URL/method mapping. The data layer owns storage and retrieval. This separation means you can swap your database later by changing only the data layer."
+/>
+
+<QuizCard
+  question="You mount a router with `app.use('/tasks', tasksRouter)`. Inside the router, you define `router.get('/:id', handler)`. What URL does this handle?"
+  choices={["/tasks", "/:id", "/tasks/:id", "/tasks/tasks/:id"]}
+  correct={2}
+  explanation="Routes in a Router are relative to the mount point. app.use('/tasks', router) + router.get('/:id') = GET /tasks/:id. The mount prefix and route path are concatenated."
+/>

@@ -30,22 +30,71 @@ The button below sends a real HTTP `GET` request to a demo endpoint that returns
   description="Click Send. You're calling a real HTTP endpoint — the same kind your apps will build."
 />
 
-## What You Just Received
+## What You Just Received — JSON
 
-The response you got back is **JSON** — JavaScript Object Notation. It's the standard format for API responses because it's easy for both humans and machines to read.
+The response you got back is **JSON** (JavaScript Object Notation). It's the universal format for API data because it maps directly to objects and arrays in almost every programming language.
 
-Notice the structure:
-- `data` — the array of users
-- `total` — how many there are
-- `_links` — a hint about related endpoints (this is a REST convention called HATEOAS)
+JSON has exactly six value types:
+
+```json
+{
+  "string": "hello",
+  "number": 42,
+  "boolean": true,
+  "null": null,
+  "array": [1, 2, 3],
+  "object": { "nested": "value" }
+}
+```
+
+In the response you saw:
+- `data` — an array of user objects
+- `total` — a number
+- `_links` — a nested object with related URLs (this is a REST pattern called HATEOAS)
+
+Every API you'll ever build returns JSON. Every API you'll ever call sends JSON back. It's the lingua franca of web APIs.
+
+## The Anatomy of an HTTP Request
+
+Every API call is made of two parts: a **request** and a **response**. Here's what each one looks like:
+
+```
+── REQUEST ──────────────────────────────────────
+GET /api/playground/users HTTP/1.1
+Host: localhost:3000
+Accept: application/json
+
+(no body — GET requests don't have one)
+
+── RESPONSE ─────────────────────────────────────
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "data": [...],
+  "total": 3
+}
+```
+
+The request has:
+- **Method** — what to do (`GET`, `POST`, `DELETE`, etc.)
+- **URL** — which resource to act on
+- **Headers** — metadata about the request (content type, auth tokens, etc.)
+- **Body** — data being sent to the server (only for POST/PUT/PATCH)
+
+The response has:
+- **Status code** — did it work? (`200 OK`, `404 Not Found`, `500 Error`)
+- **Headers** — metadata about the response
+- **Body** — the data being returned (usually JSON)
 
 ## What Happens Under the Hood
 
-1. Your browser sent an HTTP request to the server
-2. The server processed it — looked up the user data
-3. The server sent back a **response** with a `200 OK` status code and the JSON body
+1. Your browser sent an HTTP `GET` request to `/api/playground/users`
+2. The server matched the URL to a route handler
+3. The handler read from the data store and built a JSON response
+4. The server sent back a `200 OK` with the JSON body
 
-You just watched all three steps happen in real time.
+You just watched all four steps happen in real time.
 
 ## Why APIs Matter
 

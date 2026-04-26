@@ -83,6 +83,37 @@ A successful POST returns `201 Created`.
   description="A 204 response means success with no body. Notice the empty response panel."
 />
 
+## Safe vs. Unsafe Methods
+
+Methods are also classified as **safe** or **unsafe**:
+
+| Method | Safe? | Meaning |
+|--------|-------|---------|
+| GET | ✅ Yes | Never modifies data |
+| POST | ❌ No | Creates data |
+| PUT | ❌ No | Replaces data |
+| PATCH | ❌ No | Modifies data |
+| DELETE | ❌ No | Removes data |
+
+**Safe** methods can be freely retried, prefetched, and cached. Browsers and CDNs automatically cache GET responses. They never cache POST or DELETE — because those change state.
+
+## Choosing Between PUT and PATCH
+
+A common question: when do you use PUT vs PATCH?
+
+- Use **PUT** when you're replacing the entire resource and you have all the fields
+- Use **PATCH** when you only want to update specific fields and leave the rest unchanged
+
+```
+// You only know the new email — use PATCH
+PATCH /users/1  { "email": "new@example.com" }
+
+// You're building a form that submits all user fields at once — use PUT
+PUT /users/1  { "name": "Alice", "email": "new@example.com", "role": "admin" }
+```
+
+In practice, most APIs implement PATCH and rarely need PUT. But knowing both is important.
+
 ## Why Methods Matter
 
 Using the right method isn't just convention — it communicates intent to everyone reading your API:
@@ -91,6 +122,28 @@ Using the right method isn't just convention — it communicates intent to every
 - A `DELETE` to `/users/5` is clear; no ambiguity about what happens
 
 APIs that stuff everything into `POST` (like old RPC-style services) are harder to understand and harder to cache because every call might change state.
+
+## Chained Exercise — Create, Then Fetch
+
+The real power of methods comes from chaining them. Create a user, then immediately fetch them to confirm they were stored:
+
+<RequestPlayground
+  defaultMethod="POST"
+  defaultUrl="/api/playground/users"
+  defaultBody={`{
+  "name": "Dana Lee",
+  "email": "dana@example.com"
+}`}
+  title="Step 1 — POST to create a user"
+  description="Note the 'id' in the response — you'll use it in the next request."
+/>
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/users/4"
+  title="Step 2 — GET the user you just created"
+  description="If you created user #4, fetch them here. Change the id to match what the POST returned."
+/>
 
 <QuizCard
   question="You want to update only the email address of a user without affecting their name or role. Which method should you use?"

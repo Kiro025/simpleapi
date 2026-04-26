@@ -1,0 +1,159 @@
+# Designing Your API
+
+The worst time to think about your API's structure is while you're writing code. Five minutes spent designing before you write a single line saves hours of refactoring later.
+
+## Step 1: Identify Your Resources
+
+A resource is any **noun** your API manages. For a task manager:
+
+- **Tasks** — the core resource
+- **Users** — who owns tasks (Phase 2)
+- **Tags** — categories for tasks (Phase 2)
+
+Start with one resource and get it right. You're building the **Tasks API**.
+
+## Step 2: Define the URL Structure
+
+Each resource gets a collection URL and an item URL:
+
+| URL | Identifies |
+|-----|-----------|
+| `/tasks` | The entire collection of tasks |
+| `/tasks/:id` | A specific task |
+
+Rules:
+- Plural nouns: `/tasks`, not `/task`
+- No verbs: `/tasks`, not `/getTasks`
+- Nested resources use nested paths: `/tasks/:id/comments`
+
+## Step 3: Map Methods to Operations
+
+Now assign an HTTP method to each operation:
+
+| Method | URL | What it does | Request body | Response |
+|--------|-----|-------------|-------------|---------|
+| GET | `/tasks` | List all tasks | — | 200 + `{ data: Task[] }` |
+| POST | `/tasks` | Create a task | `{ title, status?, priority? }` | 201 + `{ data: Task }` |
+| GET | `/tasks/:id` | Get one task | — | 200 + `{ data: Task }` or 404 |
+| PUT | `/tasks/:id` | Replace a task | `{ title, status, priority }` | 200 + `{ data: Task }` or 404 |
+| PATCH | `/tasks/:id` | Partial update | any subset of fields | 200 + `{ data: Task }` or 404 |
+| DELETE | `/tasks/:id` | Delete a task | — | 204 or 404 |
+
+## Step 4: Define Your Data Model
+
+The shape of a Task object:
+
+```js
+{
+  id: 1,                        // number, auto-assigned
+  title: "Write the API",       // string, required, 1-200 chars
+  status: "todo",               // "todo" | "in-progress" | "done"
+  priority: "high",             // "low" | "medium" | "high"
+  createdAt: "2026-04-20T..."   // ISO 8601, server-assigned
+}
+```
+
+Fields that are **server-assigned** (id, createdAt) must never be accepted from the client in POST/PUT/PATCH.
+
+## Step 5: Define Validation Rules
+
+| Field | Rule |
+|-------|------|
+| `title` | Required on POST and PUT. String. 1–200 characters. |
+| `status` | Optional. Must be `"todo"`, `"in-progress"`, or `"done"`. Defaults to `"todo"`. |
+| `priority` | Optional. Must be `"low"`, `"medium"`, or `"high"`. Defaults to `"medium"`. |
+
+## Step 6: Define Error Responses
+
+| Scenario | Status | Body |
+|----------|--------|------|
+| Task not found | 404 | `{ error: "Task with id 5 not found" }` |
+| Missing title | 422 | `{ error: "Validation failed", message: "title is required", field: "title" }` |
+| Invalid status value | 422 | `{ error: "Validation failed", message: "status must be todo, in-progress, or done" }` |
+| Bad JSON body | 400 | `{ error: "Invalid JSON body" }` |
+
+## Step 7: Define Query Parameter Support
+
+For the list endpoint (`GET /tasks`):
+
+| Param | Type | Effect |
+|-------|------|--------|
+| `status` | string | Filter by status |
+| `priority` | string | Filter by priority |
+| `sort` | `createdAt` \| `priority` | Sort field |
+| `order` | `asc` \| `desc` | Sort direction (default: `asc`) |
+| `page` | number | Page number (default: `1`) |
+| `limit` | number | Items per page (default: `10`, max: `100`) |
+
+## The Completed Spec
+
+This is your blueprint. Before writing any code, you can hand this spec to another developer (or a frontend team) and they know exactly what to expect:
+
+```
+Tasks API v1
+
+Base URL: /api/tasks
+
+Resources
+─────────
+Task {
+  id:        number   (server-assigned)
+  title:     string   (required, 1-200 chars)
+  status:    "todo" | "in-progress" | "done"  (default: "todo")
+  priority:  "low" | "medium" | "high"        (default: "medium")
+  createdAt: ISO 8601 string  (server-assigned)
+}
+
+Endpoints
+─────────
+GET    /tasks          → 200 { data: Task[], meta: { total, page, limit } }
+POST   /tasks          → 201 { data: Task }      body: { title, status?, priority? }
+GET    /tasks/:id      → 200 { data: Task }      | 404
+PUT    /tasks/:id      → 200 { data: Task }      body: { title, status, priority }
+PATCH  /tasks/:id      → 200 { data: Task }      body: partial Task fields
+DELETE /tasks/:id      → 204 (empty)             | 404
+
+Errors
+──────
+400  Invalid JSON
+404  Resource not found
+422  Validation failed  { error, message, field? }
+```
+
+<Callout variant="success" title="Design-first pays off">
+You now have a contract. Your implementation will verify against this spec. If your POST returns 200 instead of 201, or your 404 message format is inconsistent — the spec catches it. Good API design is consistent, predictable, and self-documenting.
+</Callout>
+
+Try the live Tasks API — see how closely it matches the spec above:
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/tasks"
+  title="GET /tasks — list all"
+  description="Notice the response envelope: { data, meta, _links }. Compare the Task shape to the spec above."
+/>
+
+<RequestPlayground
+  defaultMethod="POST"
+  defaultUrl="/api/playground/tasks"
+  defaultBody={`{
+  "title": "Design the API spec",
+  "priority": "high"
+}`}
+  title="POST /tasks — create"
+  description="id and createdAt are server-assigned — you don't send them. Notice the 201 status."
+/>
+
+<QuizCard
+  question="Why should URLs use plural nouns like /tasks instead of /task or /getTask?"
+  choices={["It's just a convention with no practical impact", "Plural nouns make it clear the URL refers to a resource type (collection), and verbs in URLs make the API harder to cache and understand", "Singular nouns cause routing conflicts in Express", "REST requires plural URLs as part of the HTTP specification"]}
+  correct={1}
+  explanation="/tasks identifies the 'tasks' resource — a collection. Verbs like /getTasks or /createTask mix the resource and operation, breaking the Uniform Interface constraint. HTTP methods already carry the verb (GET, POST, DELETE), so URLs should be pure nouns."
+/>
+
+<QuizCard
+  question="A client sends `{ id: 999, title: 'New task' }` to POST /tasks. Your server should:"
+  choices={["Accept the id and create the task with id=999", "Return 400 because id is not allowed", "Ignore the id field and assign one server-side", "Return 422 because id is not in the schema"]}
+  correct={2}
+  explanation="Server-assigned fields (id, createdAt) should be silently ignored or explicitly stripped from client input — never trusted. Your Zod schema shouldn't include them, so they simply won't appear in the validated output. The server always generates its own id."
+/>

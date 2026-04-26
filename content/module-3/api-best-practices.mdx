@@ -1,0 +1,246 @@
+# API Best Practices
+
+Your Tasks API works. This lesson covers the patterns that make it production-quality — consistent response shapes, CORS, versioning, and the decisions you'll face when you're ready to scale.
+
+## Consistent Response Envelopes
+
+A **response envelope** is a wrapper object that every endpoint uses, regardless of what's inside. Without one, each endpoint invents its own shape:
+
+```js
+// ❌ No envelope — every endpoint is different
+GET /tasks     → [task, task, task]
+GET /tasks/1   → { id: 1, title: '...' }
+POST /tasks    → { task: { id: 2, ... } }
+DELETE /tasks/1 → { success: true }
+```
+
+With a consistent envelope, clients know exactly what to expect:
+
+```js
+// ✅ Consistent envelope
+GET /tasks     → { data: [...], meta: { total, page } }
+GET /tasks/1   → { data: { id: 1, ... } }
+POST /tasks    → { data: { id: 2, ... } }
+DELETE /tasks/1 → (204, no body)
+
+// ✅ Consistent errors
+{ "error": "Validation failed", "message": "title is required", "field": "title" }
+```
+
+Implement this with a simple helper:
+
+```js filename="lib/response.js"
+function success(data, meta = null) {
+  return meta ? { data, meta } : { data }
+}
+
+function failure(message, field = null, status = 422) {
+  const body = { error: 'Validation failed', message }
+  if (field) body.field = field
+  return { body, status }
+}
+
+module.exports = { success, failure }
+```
+
+```js filename="routes/tasks.js"
+const { success } = require('../lib/response')
+
+router.get('/:id', (req, res) => {
+  const task = db.findById(parseInt(req.params.id))
+  if (!task) return res.status(404).json({ error: 'Task not found' })
+  res.json(success(task)) // → { data: task }
+})
+```
+
+## CORS Setup
+
+By default, browsers block requests from a different origin. If your frontend runs on port 3001 and your API on 3000, every request fails without CORS headers.
+
+```bash
+npm install cors
+```
+
+```js filename="server.js"
+const cors = require('cors')
+
+// Development: allow all origins
+app.use(cors())
+
+// Production: restrict to your frontend's URL
+app.use(cors({
+  origin: process.env.ALLOWED_ORIGIN ?? 'http://localhost:3001',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}))
+```
+
+<Callout variant="warning" title="Never use cors() with wildcard in production">
+`app.use(cors())` with no options allows any origin to call your API — fine for a learning project, but a security risk in production if your API handles sensitive data. Always specify the origin in production.
+</Callout>
+
+## API Versioning
+
+APIs change. If you update a field name or remove an endpoint, existing clients break. Versioning gives you a way to evolve the API without breaking them.
+
+The most common approach — URL prefix versioning:
+
+```js filename="server.js"
+const v1Tasks = require('./routes/v1/tasks')
+const v2Tasks = require('./routes/v2/tasks')
+
+app.use('/api/v1/tasks', v1Tasks)
+app.use('/api/v2/tasks', v2Tasks) // future
+```
+
+For a first API, put `/api/v1/` in the URL from day one — retrofitting it later is painful.
+
+```
+GET /api/v1/tasks        ← current clients use this
+GET /api/v2/tasks        ← new clients use this; old clients keep working
+```
+
+## Environment Variables
+
+Never hardcode configuration values in your code:
+
+```js filename="server.js"
+// ❌ Hardcoded — can't change without editing code
+app.listen(3000)
+
+// ✅ From environment
+const PORT = process.env.PORT ?? 3000
+app.listen(PORT)
+```
+
+Use the `dotenv` package to load a `.env` file in development:
+
+```bash
+npm install dotenv
+```
+
+```bash filename=".env"
+PORT=3000
+ALLOWED_ORIGIN=http://localhost:3001
+NODE_ENV=development
+```
+
+```js filename="server.js"
+require('dotenv').config() // Load .env into process.env — do this first
+
+const express = require('express')
+// ...
+```
+
+<Callout variant="warning" title="Never commit .env to git">
+Add `.env` to your `.gitignore`. It often contains secrets (API keys, database passwords). Commit a `.env.example` instead — the same file with placeholder values — so other developers know what variables they need.
+</Callout>
+
+## Inline Documentation
+
+Comments are the most underrated API tool. Future-you and collaborators will thank you:
+
+```js filename="routes/tasks.js"
+/**
+ * GET /tasks
+ * Returns a paginated, filterable list of tasks.
+ *
+ * Query params:
+ *   status    - Filter by status: "todo" | "in-progress" | "done"
+ *   priority  - Filter by priority: "low" | "medium" | "high"
+ *   sort      - Sort field: "createdAt" | "priority"
+ *   order     - Sort direction: "asc" | "desc" (default: "asc")
+ *   page      - Page number, 1-indexed (default: 1)
+ *   limit     - Items per page, max 100 (default: 10)
+ *
+ * Response: 200 { data: Task[], meta: { total, page, limit, pages } }
+ */
+router.get('/', (req, res) => { ... })
+```
+
+For a public API, tools like [Swagger/OpenAPI](https://swagger.io) let you generate interactive documentation from annotations. For now, clear JSDoc comments in your route files is sufficient.
+
+## The Production Checklist
+
+Before shipping a real API, run through this list:
+
+```
+✅ Consistent response envelope on every endpoint
+✅ Consistent error shape with status code + message + optional field
+✅ Input validation on every POST, PUT, PATCH
+✅ CORS configured to the correct origin
+✅ URL versioning (/api/v1/)
+✅ Environment variables for config (port, secrets, origins)
+✅ Error middleware catches and formats unexpected errors
+✅ .env in .gitignore, .env.example committed
+✅ Route-level documentation (JSDoc or OpenAPI)
+```
+
+## What's Next
+
+You've built a complete, production-structured REST API. The natural next steps:
+
+- **Real database** — Replace the in-memory array with PostgreSQL (via [Prisma](https://prisma.io)) or SQLite (via [better-sqlite3](https://github.com/WiseLibs/better-sqlite3))
+- **Authentication** — Protect routes with JWT tokens (using [jsonwebtoken](https://github.com/auth0/node-jsonwebtoken))
+- **Testing** — Automated tests with [Vitest](https://vitest.dev) + [Supertest](https://github.com/ladjs/supertest) — test your actual HTTP endpoints
+- **Rate limiting** — Protect against abuse with [express-rate-limit](https://github.com/express-rate-limit/express-rate-limit)
+- **OpenAPI spec** — Auto-generate interactive docs with [swagger-jsdoc](https://github.com/Surnet/swagger-jsdoc)
+
+Try the live demo one more time — the full spec, in production:
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/tasks"
+  title="The completed Tasks API"
+  description="Everything you've learned — filtering, pagination, consistent envelope, proper status codes."
+/>
+
+<MonacoEditor
+  language="javascript"
+  filename="server.js"
+  height={300}
+  readOnly={false}
+  initialCode={`require('dotenv').config()
+const express = require('express')
+const cors = require('cors')
+const morgan = require('morgan')
+const tasksRouter = require('./routes/tasks')
+
+const app = express()
+
+app.use(cors({ origin: process.env.ALLOWED_ORIGIN ?? 'http://localhost:3001' }))
+app.use(morgan('dev'))
+app.use(express.json())
+
+// All task routes under /api/v1/tasks
+app.use('/api/v1/tasks', tasksRouter)
+
+// Centralised error handler
+app.use((err, req, res, next) => {
+  if (err.name === 'ZodError') {
+    return res.status(422).json({
+      error: 'Validation failed',
+      issues: err.issues.map(i => ({ field: i.path.join('.'), message: i.message }))
+    })
+  }
+  console.error(err)
+  res.status(500).json({ error: 'Internal server error' })
+})
+
+const PORT = process.env.PORT ?? 3000
+app.listen(PORT, () => console.log(\`Tasks API running on http://localhost:\${PORT}\`))`}
+/>
+
+<QuizCard
+  question="Why should you include a version prefix like `/api/v1/` in your URLs from the start?"
+  choices={["It makes URLs longer and more descriptive", "It allows you to release breaking changes as v2 without breaking existing v1 clients", "It's required by the HTTP specification", "It improves caching performance"]}
+  correct={1}
+  explanation="Once clients start using your API, changing field names, removing endpoints, or altering response shapes breaks them. Versioning lets you introduce /api/v2/ with breaking changes while keeping /api/v1/ working for existing clients. Adding it later means updating every client."
+/>
+
+<QuizCard
+  question="What should you do with your `.env` file and version control?"
+  choices={["Commit it so teammates can see the config", "Add it to .gitignore and commit a .env.example with placeholder values", "Encrypt it before committing", "Store it in the database instead"]}
+  correct={1}
+  explanation=".env contains secrets — API keys, database passwords, signing keys. If you commit it, those secrets are in your git history forever (even if you later delete the file). Add .env to .gitignore and commit .env.example with placeholder values so teammates know what variables they need."
+/>

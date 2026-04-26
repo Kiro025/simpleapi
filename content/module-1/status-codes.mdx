@@ -65,11 +65,74 @@ Try triggering a **400**:
 5xx errors are the server's fault. 4xx errors are the client's fault. This distinction matters for debugging: a 400 means you sent something wrong; a 500 means something broke on the server side.
 </Callout>
 
+## 422 — Unprocessable Entity
+
+There's an important distinction between **400 Bad Request** and **422 Unprocessable Entity**:
+
+- **400 Bad Request** — the server couldn't parse the request (malformed JSON, wrong content-type)
+- **422 Unprocessable Entity** — the JSON was valid, but the data itself failed validation (missing required field, wrong value type)
+
+```json
+// 400 — can't even parse this
+POST /tasks  body: "title: missing quotes"
+
+// 422 — valid JSON, but semantically wrong
+POST /tasks  body: { "status": "pending" }
+// → 422 { "error": "Validation failed", "message": "'title' is required" }
+```
+
+Most modern APIs use 422 for field-level validation failures instead of 400.
+
+## 409 — Conflict
+
+**409 Conflict** means the request can't be completed because it conflicts with the current state of the resource. Common cases:
+
+- Creating a user with an email that already exists
+- Trying to update a resource that's been modified by another user (optimistic locking)
+
+```json
+POST /users  { "email": "alice@example.com" }
+→ 409 { "error": "A user with this email already exists" }
+```
+
+## Consistent Error Response Shape
+
+A status code tells the client *what* happened. The response body should tell them *why* and *where*.
+
+```json
+// ✅ Good — specific, actionable
+{
+  "error": "Validation failed",
+  "message": "'title' must not be empty",
+  "field": "title"
+}
+
+// ❌ Bad — vague, unhelpful
+{
+  "message": "error"
+}
+```
+
+The `field` property is especially useful for form validation — the client can highlight the specific input that failed.
+
 ## Status Codes as a Communication Protocol
 
 The status code is the first thing a client reads. It answers: "did it work?" before the client even parses the body.
 
 A well-designed API uses status codes correctly so clients can make decisions without reading the body — for example, retrying on 503 but not on 400.
+
+Try triggering a **422** (validation failure):
+
+<RequestPlayground
+  defaultMethod="POST"
+  defaultUrl="/api/playground/tasks"
+  defaultBody={`{
+  "status": "todo",
+  "priority": "high"
+}`}
+  title="422 — missing required field"
+  description="The 'title' field is required. Notice the response includes 'error', 'message', and 'field' — a consistent error shape."
+/>
 
 Try triggering a **500** (simulated server error):
 

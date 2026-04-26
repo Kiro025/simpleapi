@@ -62,6 +62,70 @@ export const curriculum: Module[] = [
           "Set up an Express server and build a working GET endpoint from scratch.",
         estimatedMinutes: 20,
       },
+      {
+        slug: "complete-crud",
+        title: "Complete CRUD",
+        description:
+          "Add PUT, PATCH, and DELETE to your Express server for full create-read-update-delete coverage.",
+        estimatedMinutes: 25,
+      },
+      {
+        slug: "middleware",
+        title: "Middleware",
+        description:
+          "Understand the request pipeline, write custom middleware, and use popular packages like cors and morgan.",
+        estimatedMinutes: 20,
+      },
+      {
+        slug: "validation-and-errors",
+        title: "Validation & Error Handling",
+        description:
+          "Validate request bodies with Zod and centralise error handling with Express error middleware.",
+        estimatedMinutes: 25,
+      },
+      {
+        slug: "query-params-and-filtering",
+        title: "Query Params & Filtering",
+        description:
+          "Use req.query to filter, sort, and paginate list endpoints.",
+        estimatedMinutes: 20,
+      },
+      {
+        slug: "project-structure",
+        title: "Project Structure",
+        description:
+          "Break a monolithic server.js into routes, controllers, and a data layer using Express Router.",
+        estimatedMinutes: 20,
+      },
+    ],
+  },
+  {
+    slug: "module-3",
+    title: "Build a Complete REST API",
+    description:
+      "Design and build a fully functional Tasks API from scratch — applying everything from Modules 1 and 2.",
+    lessons: [
+      {
+        slug: "design-your-api",
+        title: "Designing Your API",
+        description:
+          "Model your resources, design your URLs, and map out request/response shapes before writing a line of code.",
+        estimatedMinutes: 20,
+      },
+      {
+        slug: "build-the-tasks-api",
+        title: "Build the Tasks API",
+        description:
+          "Implement a complete Tasks REST API step by step — all five methods, validation, and error handling.",
+        estimatedMinutes: 40,
+      },
+      {
+        slug: "api-best-practices",
+        title: "API Best Practices",
+        description:
+          "Consistent response shapes, CORS, versioning, inline documentation, and what to learn next.",
+        estimatedMinutes: 20,
+      },
     ],
   },
 ];

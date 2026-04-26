@@ -1,0 +1,280 @@
+# Validation & Error Handling
+
+Every API receives bad input eventually — missing fields, wrong types, values out of range. How you handle those errors defines the quality of your API. Good error handling is what separates a usable API from a frustrating one.
+
+## The Problem with Inline Validation
+
+When you start out, validation looks like this:
+
+```js filename="server.js"
+app.post('/tasks', (req, res) => {
+  if (!req.body.title) {
+    return res.status(422).json({ error: 'title is required' })
+  }
+  if (typeof req.body.title !== 'string') {
+    return res.status(422).json({ error: 'title must be a string' })
+  }
+  if (req.body.title.length > 200) {
+    return res.status(422).json({ error: 'title must be under 200 characters' })
+  }
+  if (!['todo', 'in-progress', 'done'].includes(req.body.status)) {
+    return res.status(422).json({ error: 'status must be todo, in-progress, or done' })
+  }
+  // ... finally, the actual handler logic
+})
+```
+
+This works, but it doesn't scale. You end up repeating validation logic across every POST and PUT route, and the handler logic gets buried under validation code.
+
+## Schema Validation with Zod
+
+[Zod](https://zod.dev) is the most popular Node.js validation library. You define a schema once, then call `.parse()` or `.safeParse()` to validate any value against it.
+
+```bash
+npm install zod
+```
+
+```js filename="server.js"
+const { z } = require('zod')
+
+// Define the schema once
+const TaskSchema = z.object({
+  title: z.string().min(1).max(200),
+  status: z.enum(['todo', 'in-progress', 'done']).default('todo'),
+  priority: z.enum(['low', 'medium', 'high']).default('medium'),
+})
+
+app.post('/tasks', (req, res) => {
+  // safeParse returns { success, data } or { success: false, error }
+  const result = TaskSchema.safeParse(req.body)
+  
+  if (!result.success) {
+    return res.status(422).json({
+      error: 'Validation failed',
+      issues: result.error.issues.map(i => ({
+        field: i.path.join('.'),
+        message: i.message,
+      }))
+    })
+  }
+
+  // result.data is now typed and validated
+  const task = { id: nextId++, ...result.data, createdAt: new Date().toISOString() }
+  tasks.push(task)
+  res.status(201).json({ data: task })
+})
+```
+
+<Callout variant="tip" title="safeParse vs parse">
+`z.parse()` throws an exception on invalid input. `z.safeParse()` returns a result object — safer for API handlers where you want to send a 422 instead of crashing. Use `safeParse` in route handlers.
+</Callout>
+
+Try triggering a validation error on the tasks endpoint — send a body missing the required `title` field:
+
+<RequestPlayground
+  defaultMethod="POST"
+  defaultUrl="/api/playground/tasks"
+  defaultBody={`{
+  "status": "in-progress",
+  "priority": "high"
+}`}
+  title="422 — missing title field"
+  description="The 'title' field is required. Notice the error response includes the field name and message."
+/>
+
+Now try sending an invalid status value:
+
+<RequestPlayground
+  defaultMethod="POST"
+  defaultUrl="/api/playground/tasks"
+  defaultBody={`{
+  "title": "New task",
+  "status": "pending"
+}`}
+  title="422 — invalid status value"
+  description="'pending' is not a valid status. Valid values are: todo, in-progress, done."
+/>
+
+## Express Error Middleware
+
+Express has a special type of middleware for handling errors: a 4-argument function `(err, req, res, next)`. When any route calls `next(err)` — or throws inside an `async` handler — Express skips straight to this handler.
+
+```js filename="server.js"
+// Regular routes call next(err) to trigger this
+app.post('/tasks', async (req, res, next) => {
+  try {
+    const result = TaskSchema.parse(req.body) // throws on invalid input
+    const task = { id: nextId++, ...result, createdAt: new Date().toISOString() }
+    tasks.push(task)
+    res.status(201).json({ data: task })
+  } catch (err) {
+    next(err) // passes error to the error handler below
+  }
+})
+
+// Error handler — MUST have exactly 4 parameters
+// Must be registered AFTER all routes
+app.use((err, req, res, next) => {
+  // Handle Zod validation errors
+  if (err.name === 'ZodError') {
+    return res.status(422).json({
+      error: 'Validation failed',
+      issues: err.issues.map(i => ({
+        field: i.path.join('.'),
+        message: i.message,
+      }))
+    })
+  }
+
+  // Generic fallback
+  console.error(err)
+  res.status(500).json({ error: 'Internal server error' })
+})
+```
+
+<Callout variant="warning" title="4 parameters are required">
+Express identifies error middleware by the number of parameters — it must have exactly `(err, req, res, next)`. If you write `(err, req, res)` with only three, Express won't treat it as error middleware and errors will be silently swallowed.
+</Callout>
+
+## A Consistent Error Response Shape
+
+Pick one error shape and use it everywhere. Clients can then handle errors generically:
+
+```js
+// ✅ Consistent — clients can always read error.message
+{
+  "error": "Validation failed",
+  "message": "title must not be empty",
+  "field": "title"        // optional — which field caused the problem
+}
+
+// ❌ Inconsistent — every endpoint responds differently
+{ "msg": "bad input" }
+{ "errorMessage": "title required" }
+{ "err": 400 }
+```
+
+Here's the pattern used by the demo API:
+
+```js filename="server.js"
+// Helper: create a consistent error response
+function apiError(message, field = null) {
+  return { error: 'Validation failed', message, ...(field && { field }) }
+}
+
+app.post('/tasks', (req, res) => {
+  if (!req.body.title) {
+    return res.status(422).json(apiError("'title' is required", 'title'))
+  }
+  // ...
+})
+```
+
+## Complete Validated Route Example
+
+Putting it all together — Zod schema + error middleware + consistent error shape:
+
+```js filename="server.js"
+const express = require('express')
+const { z } = require('zod')
+const app = express()
+app.use(express.json())
+
+const tasks = []
+let nextId = 1
+
+const TaskSchema = z.object({
+  title: z.string().min(1, 'title cannot be empty').max(200),
+  status: z.enum(['todo', 'in-progress', 'done']).default('todo'),
+  priority: z.enum(['low', 'medium', 'high']).default('medium'),
+})
+
+app.get('/tasks', (req, res) => {
+  res.json({ data: tasks, total: tasks.length })
+})
+
+app.post('/tasks', (req, res, next) => {
+  try {
+    const data = TaskSchema.parse(req.body)
+    const task = { id: nextId++, ...data, createdAt: new Date().toISOString() }
+    tasks.push(task)
+    res.status(201).json({ data: task })
+  } catch (err) {
+    next(err)
+  }
+})
+
+// Error middleware — must be last
+app.use((err, req, res, next) => {
+  if (err.name === 'ZodError') {
+    return res.status(422).json({
+      error: 'Validation failed',
+      issues: err.issues.map(i => ({ field: i.path.join('.'), message: i.message }))
+    })
+  }
+  console.error(err)
+  res.status(500).json({ error: 'Internal server error' })
+})
+
+app.listen(3000)
+```
+
+<MonacoEditor
+  language="javascript"
+  filename="server.js"
+  height={380}
+  readOnly={false}
+  initialCode={`const express = require('express')
+const { z } = require('zod')
+const app = express()
+app.use(express.json())
+
+// Schema defines the shape and rules for a valid task
+const TaskSchema = z.object({
+  title: z.string().min(1, 'title cannot be empty').max(200),
+  status: z.enum(['todo', 'in-progress', 'done']).default('todo'),
+  priority: z.enum(['low', 'medium', 'high']).default('medium'),
+})
+
+const tasks = []
+let nextId = 1
+
+app.post('/tasks', (req, res, next) => {
+  try {
+    const data = TaskSchema.parse(req.body) // throws ZodError if invalid
+    const task = { id: nextId++, ...data, createdAt: new Date().toISOString() }
+    tasks.push(task)
+    res.status(201).json({ data: task })
+  } catch (err) {
+    next(err) // pass to error handler
+  }
+})
+
+// 4-parameter error handler — must come after all routes
+app.use((err, req, res, next) => {
+  if (err.name === 'ZodError') {
+    return res.status(422).json({
+      error: 'Validation failed',
+      issues: err.issues.map(i => ({ field: i.path.join('.'), message: i.message }))
+    })
+  }
+  console.error(err)
+  res.status(500).json({ error: 'Internal server error' })
+})
+
+app.listen(3000)`}
+/>
+
+<QuizCard
+  question="Which HTTP status code is most appropriate for a request that is syntactically valid JSON but fails business validation (e.g., missing required field)?"
+  choices={["400 Bad Request", "401 Unauthorized", "422 Unprocessable Entity", "500 Internal Server Error"]}
+  correct={2}
+  explanation="422 Unprocessable Entity means the server understood the request (valid JSON, correct content-type) but couldn't process it because the data itself is invalid. 400 Bad Request is better for malformed syntax — like invalid JSON that couldn't be parsed at all."
+/>
+
+<QuizCard
+  question="Express error middleware must have exactly 4 parameters. Why?"
+  choices={["It's a JavaScript requirement for async functions", "Express identifies error handlers by counting parameters — 4 signals it's an error handler", "The 4th parameter is required to close the database connection", "It's just a convention with no technical reason"]}
+  correct={1}
+  explanation="Express uses the function's .length property (the number of declared parameters) to distinguish error middleware from regular middleware. If you write (err, req, res) with only 3 params, Express treats it as regular middleware and never calls it for errors."
+/>

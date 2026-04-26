@@ -154,10 +154,117 @@ The colon syntax (`:id`) is Express's convention. Other frameworks use `{id}`, `
   explanation="Route parameters extracted by Express are always strings, even if the URL segment looks like a number. So req.params.id is '42', not 42. That's why the Express example does parseInt(req.params.id) before comparing to stored IDs."
 />
 
-## What's Next
+## Response Chaining
 
-Now that you understand the basics, the next topics to explore are:
-- **Middleware** — functions that run between the request arriving and your route handler
-- **Error handling** — a dedicated Express error handler instead of scattered `if (!user) return`
-- **Validation** — libraries like Zod or Joi to validate request bodies
-- **Authentication** — protecting routes with JWT tokens
+Express's `res` object is chainable. You can call `.status()` and `.json()` in one line:
+
+```js filename="server.js"
+// These are identical:
+res.status(201).json({ data: user })
+
+// vs.
+res.status(201)
+res.json({ data: user })
+
+// Also common — send plain text or end without a body:
+res.status(204).end()  // no body (used for DELETE)
+res.send('OK')         // plain text
+```
+
+The chaining works because `.status()` returns the `res` object itself.
+
+## Handling Errors
+
+When something goes wrong, send an appropriate status code and a helpful error message:
+
+```js filename="server.js"
+app.get('/users/:id', (req, res) => {
+  const user = users.find(u => u.id === parseInt(req.params.id))
+
+  // Resource not found → 404
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' })
+  }
+
+  res.json({ data: user })
+})
+
+app.post('/users', (req, res) => {
+  const { name, email } = req.body
+
+  // Missing required fields → 422
+  if (!name || !email) {
+    return res.status(422).json({
+      error: 'Validation failed',
+      message: 'name and email are required'
+    })
+  }
+
+  const user = { id: nextId++, name, email }
+  users.push(user)
+  res.status(201).json({ data: user })
+})
+```
+
+<Callout variant="tip" title="Always return after sending a response">
+Note the `return` before `res.status(404)...`. Without it, execution continues and Express throws a "headers already sent" error when it tries to send the 200 response too. Always `return` when sending early.
+</Callout>
+
+<MonacoEditor
+  language="javascript"
+  filename="server.js"
+  height={360}
+  readOnly={false}
+  initialCode={`const express = require('express')
+const app = express()
+app.use(express.json())
+
+const users = [
+  { id: 1, name: 'Alice', email: 'alice@example.com' },
+  { id: 2, name: 'Bob', email: 'bob@example.com' },
+]
+let nextId = 3
+
+app.get('/users', (req, res) => {
+  res.json({ data: users, total: users.length })
+})
+
+app.get('/users/:id', (req, res) => {
+  const user = users.find(u => u.id === parseInt(req.params.id))
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' })
+  }
+  res.json({ data: user })
+})
+
+app.post('/users', (req, res) => {
+  const { name, email } = req.body
+  if (!name || !email) {
+    return res.status(422).json({ error: 'Validation failed', message: 'name and email required' })
+  }
+  const user = { id: nextId++, name, email }
+  users.push(user)
+  res.status(201).json({ data: user })
+})
+
+app.listen(3000, () => console.log('Server on http://localhost:3000'))`}
+/>
+
+Try both the success path and the error paths:
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/users/999"
+  title="GET /users/999 — trigger a 404"
+  description="User 999 doesn't exist. Notice the error message in the body alongside the 404 status."
+/>
+
+<RequestPlayground
+  defaultMethod="POST"
+  defaultUrl="/api/playground/users"
+  defaultBody={`{
+  "email": "missing-name@example.com"
+}`}
+  title="POST without a name — trigger a 422"
+  description="Missing the required 'name' field. Good error responses tell the client exactly what went wrong."
+/>

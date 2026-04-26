@@ -29,6 +29,40 @@ const lessonMap: Record<
       import("./module-2/your-first-express-endpoint.mdx") as Promise<{
         default: React.ComponentType;
       }>,
+    "complete-crud": () =>
+      import("./module-2/complete-crud.mdx") as Promise<{
+        default: React.ComponentType;
+      }>,
+    "middleware": () =>
+      import("./module-2/middleware.mdx") as Promise<{
+        default: React.ComponentType;
+      }>,
+    "validation-and-errors": () =>
+      import("./module-2/validation-and-errors.mdx") as Promise<{
+        default: React.ComponentType;
+      }>,
+    "query-params-and-filtering": () =>
+      import("./module-2/query-params-and-filtering.mdx") as Promise<{
+        default: React.ComponentType;
+      }>,
+    "project-structure": () =>
+      import("./module-2/project-structure.mdx") as Promise<{
+        default: React.ComponentType;
+      }>,
+  },
+  "module-3": {
+    "design-your-api": () =>
+      import("./module-3/design-your-api.mdx") as Promise<{
+        default: React.ComponentType;
+      }>,
+    "build-the-tasks-api": () =>
+      import("./module-3/build-the-tasks-api.mdx") as Promise<{
+        default: React.ComponentType;
+      }>,
+    "api-best-practices": () =>
+      import("./module-3/api-best-practices.mdx") as Promise<{
+        default: React.ComponentType;
+      }>,
   },
 };
 

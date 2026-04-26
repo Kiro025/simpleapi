@@ -1,0 +1,236 @@
+# Middleware
+
+Middleware is one of Express's most powerful concepts. It's how you add logging, authentication, request parsing, CORS, and more — without tangling that logic into your route handlers.
+
+## What Middleware Is
+
+In Express, a **middleware function** sits between the incoming request and your route handler. It has access to `req`, `res`, and a special `next` function.
+
+```
+Request → middleware 1 → middleware 2 → route handler → Response
+```
+
+Every middleware decides one of two things:
+- Call `next()` to pass control to the next middleware or route handler
+- Call `res.json()` / `res.end()` to send a response and stop the chain
+
+```js filename="server.js"
+// Middleware signature: (req, res, next)
+function myMiddleware(req, res, next) {
+  // Do something with the request
+  console.log('Request received:', req.method, req.url)
+  
+  next() // Pass control to the next handler
+}
+
+app.use(myMiddleware) // Register it for all routes
+```
+
+## Built-in Middleware
+
+You've already used one: `express.json()`. It parses the raw request body and puts the result on `req.body`.
+
+```js filename="server.js"
+app.use(express.json()) // Must come BEFORE route handlers that need req.body
+
+// Without express.json(), req.body is undefined
+app.post('/tasks', (req, res) => {
+  console.log(req.body) // ✅ { title: 'My task', status: 'todo' }
+})
+```
+
+Express also ships with `express.static()` for serving static files, but you won't need that for an API server.
+
+## Writing Custom Middleware
+
+### Request logger
+
+A simple logger that records every request:
+
+```js filename="logger.js"
+function requestLogger(req, res, next) {
+  const start = Date.now()
+
+  // 'finish' fires when the response is sent
+  res.on('finish', () => {
+    const duration = Date.now() - start
+    console.log(`${req.method} ${req.url} ${res.statusCode} - ${duration}ms`)
+  })
+
+  next()
+}
+
+module.exports = requestLogger
+```
+
+```js filename="server.js"
+const requestLogger = require('./logger')
+
+app.use(requestLogger) // Logs every request
+```
+
+### Request ID middleware
+
+Useful for tracing requests through logs:
+
+```js filename="server.js"
+let requestCounter = 0
+
+function addRequestId(req, res, next) {
+  req.id = ++requestCounter
+  res.setHeader('X-Request-Id', req.id)
+  next()
+}
+
+app.use(addRequestId)
+```
+
+<Callout variant="info" title="Middleware runs in registration order">
+Order matters. If you register `express.json()` after your routes, `req.body` will be undefined in those routes. Always register middleware before the routes that depend on it.
+</Callout>
+
+## CORS — Cross-Origin Resource Sharing
+
+Browsers block requests to a different origin by default. If a frontend on `localhost:3001` calls your API on `localhost:3000`, the browser rejects it unless your API sends the right CORS headers.
+
+The `cors` package handles this:
+
+```bash
+npm install cors
+```
+
+```js filename="server.js"
+const cors = require('cors')
+
+// Allow all origins (fine for development, tighten for production)
+app.use(cors())
+
+// Or restrict to specific origins:
+app.use(cors({
+  origin: 'https://myapp.com',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+}))
+```
+
+## Morgan — HTTP Request Logging
+
+Morgan is a popular logging middleware that formats request logs automatically:
+
+```bash
+npm install morgan
+```
+
+```js filename="server.js"
+const morgan = require('morgan')
+
+// 'dev' format: GET /tasks 200 5ms
+app.use(morgan('dev'))
+
+// 'combined' format: Apache combined log format (good for production)
+app.use(morgan('combined'))
+```
+
+Morgan replaces your hand-rolled request logger with a battle-tested, configurable version.
+
+## Middleware Order in Practice
+
+Here's the typical registration order for a real Express server:
+
+```js filename="server.js"
+const express = require('express')
+const cors = require('cors')
+const morgan = require('morgan')
+
+const app = express()
+
+// 1. CORS first — so preflight requests get handled before anything else
+app.use(cors())
+
+// 2. Logging — so every request gets logged, including failed ones
+app.use(morgan('dev'))
+
+// 3. Body parsing — before any routes that read req.body
+app.use(express.json())
+
+// 4. Routes — after all middleware
+app.get('/tasks', (req, res) => { ... })
+app.post('/tasks', (req, res) => { ... })
+
+app.listen(3000)
+```
+
+## Route-Specific Middleware
+
+Middleware doesn't have to be global. You can apply it to individual routes:
+
+```js filename="server.js"
+function requireAuth(req, res, next) {
+  const token = req.headers.authorization
+  if (!token) {
+    return res.status(401).json({ error: 'Authorization header required' })
+  }
+  // In a real app you'd verify the token here
+  next()
+}
+
+// Only the DELETE route requires auth
+app.delete('/tasks/:id', requireAuth, (req, res) => {
+  // Only reaches here if requireAuth calls next()
+})
+```
+
+<MonacoEditor
+  language="javascript"
+  filename="server.js"
+  height={360}
+  readOnly={false}
+  initialCode={`const express = require('express')
+const app = express()
+
+// Custom logging middleware
+function requestLogger(req, res, next) {
+  const start = Date.now()
+  res.on('finish', () => {
+    console.log(\`\${req.method} \${req.url} \${res.statusCode} - \${Date.now() - start}ms\`)
+  })
+  next()
+}
+
+// Custom auth middleware
+function requireAuth(req, res, next) {
+  const token = req.headers.authorization
+  if (!token) {
+    return res.status(401).json({ error: 'Authorization header required' })
+  }
+  next()
+}
+
+// Registration order matters
+app.use(requestLogger)
+app.use(express.json())
+
+app.get('/tasks', (req, res) => {
+  res.json({ data: [], total: 0 })
+})
+
+// This route requires auth, the GET above doesn't
+app.delete('/tasks/:id', requireAuth, (req, res) => {
+  res.status(204).end()
+})
+
+app.listen(3000)`}
+/>
+
+<QuizCard
+  question="What does calling `next()` do inside a middleware function?"
+  choices={["Sends the response to the client", "Passes control to the next middleware or route handler in the chain", "Restarts the request from the beginning", "Logs the request to the console"]}
+  correct={1}
+  explanation="next() passes control to the next function in the middleware chain. If you don't call next() (and also don't send a response), the request hangs forever — the client waits indefinitely."
+/>
+
+<QuizCard
+  question="Why must `app.use(express.json())` be registered BEFORE your route handlers?"
+  choices={["It's just a convention, order doesn't matter", "Express processes middleware in registration order — routes after it benefit from the parsed body", "express.json() only works when registered first in the file", "Routes registered before it will use a different parsing strategy"]}
+  correct={1}
+  explanation="Express runs middleware in the exact order you register it. If your route handler runs before express.json(), req.body is still the raw Buffer — it hasn't been parsed yet. Always register body-parsing middleware before routes."
+/>

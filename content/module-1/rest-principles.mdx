@@ -67,6 +67,55 @@ The demo API you've been using follows REST conventions:
 
 Notice the `_links` field in the response — that's the beginning of HATEOAS. It tells the client where to look for related resources, rather than requiring the client to already know the URL structure.
 
+## URL Design In Depth
+
+### Path params vs query params
+
+Path parameters identify a **specific resource**. Query parameters modify **how a collection is returned**.
+
+```
+/tasks/42          ← path param: identifies task #42
+/tasks?status=done ← query param: filters the collection
+```
+
+Never use query params to identify a single resource (`/tasks?id=42`). It's technically possible but breaks REST conventions and caching.
+
+### Nested resources
+
+When one resource belongs to another, nest the URLs:
+
+```
+/users/1/posts       ← all posts by user 1
+/users/1/posts/5     ← post #5 belonging to user 1
+```
+
+Keep nesting shallow — two levels is usually the maximum before URLs become unwieldy. If you need deeper nesting, consider a flat structure with query params instead:
+
+```
+// Instead of /users/1/posts/5/comments/12
+GET /comments/12?postId=5   // much cleaner
+```
+
+### API versioning
+
+When you release a breaking change, you need to support both old and new clients. The simplest approach: put the version in the URL.
+
+```
+/api/v1/tasks   ← original clients still work
+/api/v2/tasks   ← new clients use this
+```
+
+Start with `/api/v1/` from day one — retrofitting version prefixes after clients are already using your API is painful.
+
+## Practical URL Audit
+
+| ❌ Non-RESTful | ✅ RESTful | Why |
+|--------------|-----------|-----|
+| `/getTasks` | `GET /tasks` | Verb in URL breaks Uniform Interface |
+| `/tasks?id=5` | `GET /tasks/5` | Query params are for filtering, not identifying |
+| `/task/create` | `POST /tasks` | Verb + singular noun; should be `POST /tasks` |
+| `/tasks/5/doComplete` | `PATCH /tasks/5 { status: "done" }` | Actions expressed via method + body, not URL |
+
 <QuizCard
   question="REST requires that each request contains all the information the server needs, and the server stores no session state between requests. Which constraint is this?"
   choices={["Client-Server Separation", "Statelessness", "Cacheability", "Uniform Interface"]}
