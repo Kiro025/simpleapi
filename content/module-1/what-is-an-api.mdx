@@ -1,0 +1,44 @@
+# What Is an API?
+
+**API** stands for Application Programming Interface. At its core, an API is a set of rules that allows one piece of software to talk to another.
+
+Think of it like a restaurant menu: you (the client) don't need to know how the kitchen (the server) works internally. You just need to know what you can order (the available endpoints) and what format to use when ordering (the request format).
+
+## The Client-Server Model
+
+Every API interaction has two sides:
+
+- **Client** — the one making the request (your browser, a mobile app, another server)
+- **Server** — the one handling the request and sending back a response
+
+The client and server are separate. They communicate over a network using a shared protocol — in the case of web APIs, that protocol is **HTTP**.
+
+## What Makes It an "Interface"?
+
+The word *interface* is key. An API is the public-facing layer of a system. Behind it, the server can be built in any language, store data in any database, and have any internal logic — as long as the interface (the set of endpoints and their expected inputs/outputs) stays consistent, clients don't need to know or care about any of that.
+
+This is the same idea as a power outlet: you don't need to know how the power grid works to charge your phone. You just need the outlet to accept your plug.
+
+## Your First API Call
+
+The button below sends a real HTTP `GET` request to a demo endpoint that returns a list of users. The server is built right into this app — you'll see exactly what gets sent back.
+
+*(The request playground will appear here in the next build pass.)*
+
+## What Happens Under the Hood
+
+1. Your browser sends an HTTP request to the server
+2. The server processes it — looks up data, applies logic, etc.
+3. The server sends back a **response** with a status code and (usually) a body
+
+The response body is almost always **JSON** — JavaScript Object Notation. It's the standard format for API responses because it's easy for both humans and machines to read.
+
+## Why APIs Matter
+
+APIs are everywhere:
+
+- When you log in with Google, the site calls Google's API
+- When you see a map embedded in a website, it's calling Google Maps' API
+- When you get a weather update in an app, it's calling a weather service's API
+
+Building your own API means any other system — a mobile app, a third-party service, another server — can interact with your data and logic in a structured way.
