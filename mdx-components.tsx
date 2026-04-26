@@ -1,6 +1,8 @@
 import type { MDXComponents } from "mdx/types";
 import { RequestPlayground } from "@/components/learn/request-playground";
 import { CodeBlock } from "@/components/learn/code-block";
+import { Callout } from "@/components/learn/callout";
+import { MethodBadge } from "@/components/learn/method-badge";
 
 export function useMDXComponents(): MDXComponents {
   return {
@@ -73,5 +75,7 @@ export function useMDXComponents(): MDXComponents {
     pre: ({ children }) => <>{children}</>,
     // Custom MDX components usable as JSX inside .mdx files
     RequestPlayground,
+    Callout,
+    MethodBadge,
   };
 }

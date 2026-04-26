@@ -1,3 +1,68 @@
 # REST Principles
 
-*Coming soon — this lesson will cover the six constraints of REST.*
+REST (Representational State Transfer) is an architectural style described by Roy Fielding in his 2000 dissertation. It's not a protocol or a standard — it's a set of **constraints**. An API that follows these constraints is called **RESTful**.
+
+## The Six Constraints
+
+### 1. Client-Server Separation
+
+The client and server are independent. The client doesn't know how the server stores data; the server doesn't know how the client renders it.
+
+**Why it matters:** You can build a mobile app, a web app, and a CLI tool all against the same API without changing the server.
+
+### 2. Statelessness
+
+Each request from the client must contain all the information the server needs. The server doesn't store client session state between requests.
+
+<Callout variant="info" title="This doesn't mean your app is stateless">
+Your app has state (sessions, carts, preferences). Statelessness means the *server* doesn't remember past requests. The client sends its auth token on every single request rather than relying on server-side session memory.
+</Callout>
+
+### 3. Cacheability
+
+Responses must indicate whether they can be cached. This allows clients and intermediaries (CDNs, proxies) to serve cached responses and reduce load on the server.
+
+HTTP gives you caching headers like `Cache-Control`, `ETag`, and `Last-Modified` for this.
+
+### 4. Uniform Interface
+
+This is the core REST constraint. It has four sub-parts:
+
+- **Resource identification in requests** — Resources are named with URIs: `/users/1`, not `getUserById?id=1`
+- **Manipulation through representations** — Clients read and write representations of resources (usually JSON), not the resource itself
+- **Self-descriptive messages** — Each message has enough info to describe how to process it (content-type headers, etc.)
+- **HATEOAS** — Hypermedia As The Engine Of Application State. Responses include links to related actions. (Rarely fully implemented in practice)
+
+### 5. Layered System
+
+The client can't tell if it's talking directly to the server or through an intermediary (load balancer, CDN, API gateway). Each layer only knows about the layer directly around it.
+
+### 6. Code on Demand (optional)
+
+Servers can send executable code to clients — e.g., JavaScript. The only optional constraint.
+
+## RESTful URL Design
+
+The URL identifies the **resource**. The HTTP method carries the **action**. This is the core idea.
+
+| Less RESTful | More RESTful |
+|-------------|-------------|
+| `/getUser?id=1` | `GET /users/1` |
+| `/createUser` | `POST /users` |
+| `/deleteUser?id=1` | `DELETE /users/1` |
+| `/getAllUsers` | `GET /users` |
+
+**Rule of thumb:** URLs should be nouns. Methods should be verbs. Never mix them.
+
+## Try It — REST in Practice
+
+The demo API you've been using follows REST conventions:
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/users"
+  title="RESTful resource collection"
+  description="GET /users — noun-based URL, HTTP method carries the intent. The response also includes _links, which is a hint toward HATEOAS."
+/>
+
+Notice the `_links` field in the response — that's the beginning of HATEOAS. It tells the client where to look for related resources, rather than requiring the client to already know the URL structure.

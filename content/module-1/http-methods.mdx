@@ -1,3 +1,79 @@
 # HTTP Methods
 
-*Coming soon — this lesson will cover GET, POST, PUT, PATCH, and DELETE.*
+HTTP methods — also called **verbs** — tell the server what you want to do with a resource. There are five you'll use constantly.
+
+## The Five Core Methods
+
+| Method | Purpose | Has Body? | Idempotent? |
+|--------|---------|-----------|-------------|
+| GET | Read a resource | No | Yes |
+| POST | Create a resource | Yes | No |
+| PUT | Replace a resource entirely | Yes | Yes |
+| PATCH | Update part of a resource | Yes | No |
+| DELETE | Remove a resource | No | Yes |
+
+**Idempotent** means you can call it multiple times and get the same result. Calling `DELETE /users/1` twice ends up with user 1 not existing — whether you called it once or ten times.
+
+## GET — Reading Data
+
+<MethodBadge method="GET" /> is the simplest method. It retrieves a resource without changing anything on the server. GET requests never have a body.
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/users/1"
+  title="GET a single user"
+  description="Fetch user #1. Notice the URL pattern — /users/:id. Change the id to 2 or 3."
+/>
+
+## POST — Creating Data
+
+<MethodBadge method="POST" /> sends data to the server to create a new resource. The data goes in the **request body** as JSON.
+
+A successful POST returns `201 Created`.
+
+<RequestPlayground
+  defaultMethod="POST"
+  defaultUrl="/api/playground/users"
+  defaultBody={`{
+  "name": "Your Name",
+  "email": "you@example.com"
+}`}
+  title="POST a new user"
+  description="Create a new user. Edit the name and email in the body, then click Send."
+/>
+
+## PUT — Replacing Data
+
+<MethodBadge method="PUT" /> replaces an **entire** resource. If you only send some fields, the others get wiped. It's idempotent — calling it multiple times with the same body gives the same result.
+
+<RequestPlayground
+  defaultMethod="PUT"
+  defaultUrl="/api/playground/users/2"
+  defaultBody={`{
+  "name": "Bob Updated",
+  "email": "bob-new@example.com",
+  "role": "admin"
+}`}
+  title="PUT to update user #2"
+  description="Replace all fields of user #2. Notice you must send the complete resource."
+/>
+
+## DELETE — Removing Data
+
+<MethodBadge method="DELETE" /> removes a resource. A successful delete returns `204 No Content` — there's nothing to send back.
+
+<RequestPlayground
+  defaultMethod="DELETE"
+  defaultUrl="/api/playground/users/3"
+  title="DELETE user #3"
+  description="A 204 response means success with no body. Notice the empty response panel."
+/>
+
+## Why Methods Matter
+
+Using the right method isn't just convention — it communicates intent to everyone reading your API:
+
+- A `GET` to `/users` clearly reads data; no one is worried it will create something
+- A `DELETE` to `/users/5` is clear; no ambiguity about what happens
+
+APIs that stuff everything into `POST` (like old RPC-style services) are harder to understand and harder to cache because every call might change state.

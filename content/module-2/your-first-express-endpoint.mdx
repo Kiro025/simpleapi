@@ -1,3 +1,149 @@
 # Your First Express Endpoint
 
-*Coming soon — this lesson will cover setting up Express and building your first endpoint.*
+Express is a minimal Node.js web framework. It gives you routing, middleware, and request/response handling without a lot of boilerplate. Let's build a real endpoint.
+
+## Setting Up
+
+In a real project, you'd create a new directory and run:
+
+```bash
+mkdir my-api
+cd my-api
+npm init -y
+npm install express
+```
+
+Then create your entry point:
+
+```js filename="server.js"
+const express = require('express')
+const app = express()
+
+// Middleware: parse incoming JSON bodies
+app.use(express.json())
+
+// Your first route
+app.get('/hello', (req, res) => {
+  res.json({ message: 'Hello, world!' })
+})
+
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000')
+})
+```
+
+<Callout variant="tip" title="What's happening line by line">
+- `express()` creates your app — it holds all your routes and middleware
+- `app.use(express.json())` is middleware that parses incoming JSON request bodies
+- `app.get('/hello', handler)` registers a GET route at `/hello`
+- `res.json(...)` sends a JSON response with status 200
+- `app.listen(3000, ...)` starts the HTTP server on port 3000
+</Callout>
+
+## The Route Handler Pattern
+
+Every Express route follows the same signature:
+
+```js
+app.METHOD(PATH, (req, res) => {
+  // req = incoming request
+  // res = outgoing response
+})
+```
+
+The `req` object gives you access to everything about the incoming request:
+- `req.params` — route parameters like `:id`
+- `req.query` — query string values like `?limit=10`
+- `req.body` — the parsed JSON body (requires `express.json()` middleware)
+- `req.headers` — request headers
+
+The `res` object is how you send back a response:
+- `res.json(data)` — sends JSON with status 200
+- `res.status(201).json(data)` — sends JSON with a custom status
+- `res.status(404).json({ error: '...' })` — sends an error response
+
+## A Complete CRUD Example
+
+Here's a full example with GET, POST, and GET-by-id routes — the same pattern as the demo API you've been using:
+
+```js filename="server.js"
+const express = require('express')
+const app = express()
+
+app.use(express.json())
+
+// In-memory store (resets when server restarts)
+const users = [
+  { id: 1, name: 'Alice', email: 'alice@example.com' },
+  { id: 2, name: 'Bob', email: 'bob@example.com' },
+]
+let nextId = 3
+
+// GET /users — list all users
+app.get('/users', (req, res) => {
+  res.json({ data: users, total: users.length })
+})
+
+// GET /users/:id — get one user
+app.get('/users/:id', (req, res) => {
+  const user = users.find(u => u.id === parseInt(req.params.id))
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' })
+  }
+  res.json({ data: user })
+})
+
+// POST /users — create a user
+app.post('/users', (req, res) => {
+  const { name, email } = req.body
+  if (!name || !email) {
+    return res.status(400).json({ error: 'name and email are required' })
+  }
+  const user = { id: nextId++, name, email }
+  users.push(user)
+  res.status(201).json({ data: user })
+})
+
+app.listen(3000)
+```
+
+## Comparing to the Demo API
+
+The demo endpoints you've been using throughout this course are built with Next.js Route Handlers — but they follow the exact same REST patterns. Compare the Express code above to the demo routes:
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/users"
+  title="GET /users — same as app.get('/users', ...)"
+  description="This is a Next.js route handler, but it behaves identically to the Express version above."
+/>
+
+<RequestPlayground
+  defaultMethod="POST"
+  defaultUrl="/api/playground/users"
+  defaultBody={`{
+  "name": "New User",
+  "email": "new@example.com"
+}`}
+  title="POST /users — same as app.post('/users', ...)"
+  description="Create a new user. The server validates the body, creates the record, and returns 201."
+/>
+
+## Route Parameters
+
+Notice `:id` in `app.get('/users/:id', ...)` — Express calls these **route parameters**. They're available via `req.params.id`.
+
+In REST, route parameters identify a specific resource instance. The convention:
+- `/users` — the collection
+- `/users/1` — the specific item with id 1
+- `/users/1/posts` — posts belonging to user 1 (nested resources)
+
+The colon syntax (`:id`) is Express's convention. Other frameworks use `{id}`, `<id>`, or `[id]` — but the concept is universal.
+
+## What's Next
+
+Now that you understand the basics, the next topics to explore are:
+- **Middleware** — functions that run between the request arriving and your route handler
+- **Error handling** — a dedicated Express error handler instead of scattered `if (!user) return`
+- **Validation** — libraries like Zod or Joi to validate request bodies
+- **Authentication** — protecting routes with JWT tokens

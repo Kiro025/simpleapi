@@ -1,3 +1,72 @@
 # HTTP Status Codes
 
-*Coming soon — this lesson will cover 2xx, 4xx, and 5xx status codes.*
+Every HTTP response includes a three-digit status code that tells the client what happened. You've already seen some — now let's understand them systematically.
+
+## The Five Families
+
+| Range | Category | Meaning |
+|-------|----------|---------|
+| 1xx | Informational | Request received, processing continues |
+| 2xx | Success | Request received, understood, and accepted |
+| 3xx | Redirection | Further action needed |
+| 4xx | Client Error | The client made a mistake |
+| 5xx | Server Error | The server failed to fulfill a valid request |
+
+## 2xx — Success
+
+- **200 OK** — Standard success. Returned by most GET and PUT requests.
+- **201 Created** — Resource was created. Use this after a successful POST.
+- **204 No Content** — Success, but nothing to return. Common for DELETE.
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/users"
+  title="200 OK example"
+  description="A successful GET returns 200 with the data in the body."
+/>
+
+## 4xx — Client Errors
+
+<Callout variant="warning" title="Client errors are your fault (as the caller)">
+4xx codes mean the request itself was wrong. A good API always includes a clear error message in the response body — not just the code.
+</Callout>
+
+- **400 Bad Request** — The server couldn't understand the request (bad JSON, missing required fields)
+- **401 Unauthorized** — You need to authenticate first
+- **403 Forbidden** — Authenticated but not allowed to do this
+- **404 Not Found** — The resource doesn't exist at this URL
+
+Try triggering a **404**:
+
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/users/999"
+  title="404 Not Found"
+  description="User 999 doesn't exist. Notice the error message in the response body — that's good API design."
+/>
+
+Try triggering a **400**:
+
+<RequestPlayground
+  defaultMethod="POST"
+  defaultUrl="/api/playground/users"
+  defaultBody={`{"role": "admin"}`}
+  title="400 Bad Request"
+  description="Missing the required 'name' and 'email' fields."
+/>
+
+## 5xx — Server Errors
+
+- **500 Internal Server Error** — Something unexpected failed on the server
+- **502 Bad Gateway** — The server got an invalid response from an upstream service
+- **503 Service Unavailable** — Server is temporarily unavailable (overloaded or down for maintenance)
+
+<Callout variant="info" title="5xx vs 4xx">
+5xx errors are the server's fault. 4xx errors are the client's fault. This distinction matters for debugging: a 400 means you sent something wrong; a 500 means something broke on the server side.
+</Callout>
+
+## Status Codes as a Communication Protocol
+
+The status code is the first thing a client reads. It answers: "did it work?" before the client even parses the body.
+
+A well-designed API uses status codes correctly so clients can make decisions without reading the body — for example, retrying on 503 but not on 400.
