@@ -1,7 +1,7 @@
 import type { MDXComponents } from "mdx/types";
 import { RequestPlayground } from "@/components/learn/request-playground";
+import { CodeBlock } from "@/components/learn/code-block";
 
-// Pass 3 will replace code/pre with the Shiki-powered CodeBlock.
 export function useMDXComponents(): MDXComponents {
   return {
     h1: ({ children }) => (
@@ -53,7 +53,7 @@ export function useMDXComponents(): MDXComponents {
         {children}
       </td>
     ),
-    // Inline code — fenced blocks are handled by pre/code together
+    // Inline code vs fenced code blocks
     code: ({ children, className }) => {
       const isInline = !className;
       if (isInline) {
@@ -63,16 +63,14 @@ export function useMDXComponents(): MDXComponents {
           </code>
         );
       }
-      // Fenced block: simple styled pre until Pass 3 wires up Shiki
+      // Fenced block — language comes from the className (e.g. "language-js")
+      const language = className?.replace("language-", "") ?? "text";
       return (
-        <code className="text-sm font-mono">{children}</code>
+        <CodeBlock language={language}>{String(children)}</CodeBlock>
       );
     },
-    pre: ({ children }) => (
-      <pre className="bg-muted rounded-lg p-4 overflow-x-auto mb-4 text-sm font-mono border border-border">
-        {children}
-      </pre>
-    ),
+    // CodeBlock handles its own <pre>, so strip the outer one
+    pre: ({ children }) => <>{children}</>,
     // Custom MDX components usable as JSX inside .mdx files
     RequestPlayground,
   };
