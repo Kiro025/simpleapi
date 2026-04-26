@@ -1,7 +1,7 @@
 import type { MDXComponents } from "mdx/types";
+import { RequestPlayground } from "@/components/learn/request-playground";
 
 // Pass 3 will replace code/pre with the Shiki-powered CodeBlock.
-// Custom components (Callout, RequestPlayground, etc.) are registered in later passes.
 export function useMDXComponents(): MDXComponents {
   return {
     h1: ({ children }) => (
@@ -73,5 +73,7 @@ export function useMDXComponents(): MDXComponents {
         {children}
       </pre>
     ),
+    // Custom MDX components usable as JSX inside .mdx files
+    RequestPlayground,
   };
 }

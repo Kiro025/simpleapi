@@ -23,15 +23,29 @@ This is the same idea as a power outlet: you don't need to know how the power gr
 
 The button below sends a real HTTP `GET` request to a demo endpoint that returns a list of users. The server is built right into this app — you'll see exactly what gets sent back.
 
-*(The request playground will appear here in the next build pass.)*
+<RequestPlayground
+  defaultMethod="GET"
+  defaultUrl="/api/playground/users"
+  title="Fetch all users"
+  description="Click Send. You're calling a real HTTP endpoint — the same kind your apps will build."
+/>
+
+## What You Just Received
+
+The response you got back is **JSON** — JavaScript Object Notation. It's the standard format for API responses because it's easy for both humans and machines to read.
+
+Notice the structure:
+- `data` — the array of users
+- `total` — how many there are
+- `_links` — a hint about related endpoints (this is a REST convention called HATEOAS)
 
 ## What Happens Under the Hood
 
-1. Your browser sends an HTTP request to the server
-2. The server processes it — looks up data, applies logic, etc.
-3. The server sends back a **response** with a status code and (usually) a body
+1. Your browser sent an HTTP request to the server
+2. The server processed it — looked up the user data
+3. The server sent back a **response** with a `200 OK` status code and the JSON body
 
-The response body is almost always **JSON** — JavaScript Object Notation. It's the standard format for API responses because it's easy for both humans and machines to read.
+You just watched all three steps happen in real time.
 
 ## Why APIs Matter
 
