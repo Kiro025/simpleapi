@@ -3,6 +3,7 @@ import { RequestPlayground } from "@/components/learn/request-playground";
 import { CodeBlock } from "@/components/learn/code-block";
 import { Callout } from "@/components/learn/callout";
 import { MethodBadge } from "@/components/learn/method-badge";
+import { MonacoEditor } from "@/components/learn/monaco-editor";
 
 export function useMDXComponents(): MDXComponents {
   return {
@@ -77,5 +78,6 @@ export function useMDXComponents(): MDXComponents {
     RequestPlayground,
     Callout,
     MethodBadge,
+    MonacoEditor,
   };
 }
