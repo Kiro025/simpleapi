@@ -17,7 +17,6 @@ export async function CodeBlock({
 
   const html = await codeToHtml(code, {
     lang: language,
-    // dual-theme output: emits CSS variables consumed by globals.css
     themes: {
       light: "github-light",
       dark: "github-dark",
@@ -26,22 +25,17 @@ export async function CodeBlock({
   });
 
   return (
-    <div className="relative group rounded-lg border border-border overflow-hidden mb-4">
-      {filename ? (
-        <div className="flex items-center justify-between px-4 py-2 bg-muted border-b border-border">
-          <span className="text-xs text-muted-foreground font-mono">
-            {filename}
-          </span>
-          <CopyButton text={code} />
-        </div>
-      ) : (
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-          <CopyButton text={code} />
-        </div>
-      )}
+    <div className="relative group rounded-xl border border-border overflow-hidden mb-5 shadow-xs">
+      {/* Toolbar */}
+      <div className="flex items-center justify-between px-4 py-2 bg-muted/60 border-b border-border/60">
+        <span className="text-[11px] font-mono text-muted-foreground/70">
+          {filename ?? language}
+        </span>
+        <CopyButton text={code} />
+      </div>
       {/* Shiki outputs a full <pre><code> block */}
       <div
-        className="overflow-x-auto text-sm [&>pre]:p-4 [&>pre]:m-0 [&>pre]:bg-transparent [&>pre]:leading-relaxed"
+        className="overflow-x-auto text-[13px] [&>pre]:p-4 [&>pre]:m-0 [&>pre]:bg-transparent [&>pre]:leading-relaxed"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>

@@ -2,7 +2,7 @@
 
 import { useProgress } from "@/hooks/use-progress";
 import { curriculum } from "@/content/curriculum";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Circle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 
@@ -24,11 +24,17 @@ export function CompleteButton({ moduleSlug, lessonSlug }: Props) {
           : markComplete(moduleSlug, lessonSlug)
       }
       className={cn(
-        buttonVariants({ variant: done ? "secondary" : "default" })
+        buttonVariants({ variant: done ? "secondary" : "default", size: "sm" }),
+        "gap-2 transition-all duration-200",
+        done && "border-primary/20"
       )}
     >
-      <CheckCircle2 className="size-4" />
-      {done ? "Mark Incomplete" : "Mark Complete"}
+      {done ? (
+        <CheckCircle2 className="size-3.5 text-primary" />
+      ) : (
+        <Circle className="size-3.5" />
+      )}
+      {done ? "Completed" : "Mark as Complete"}
     </button>
   );
 }

@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { LessonSidebar } from "@/components/learn/lesson-sidebar";
 import { CompleteButton } from "@/components/learn/complete-button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import type { Module, LessonWithModule } from "@/content/curriculum";
 
 type Props = {
@@ -27,8 +27,8 @@ export function LessonLayout({
 }: Props) {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar — client component reads localStorage for progress */}
-      <aside className="w-64 shrink-0 border-r border-border overflow-y-auto bg-sidebar">
+      {/* Sidebar */}
+      <aside className="w-60 shrink-0 border-r border-sidebar-border overflow-hidden flex flex-col bg-sidebar">
         <LessonSidebar
           curriculum={curriculum}
           currentModuleSlug={currentModuleSlug}
@@ -36,50 +36,57 @@ export function LessonLayout({
         />
       </aside>
 
-      {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-8 py-10">
-          <article>{children}</article>
-          <Separator className="my-8" />
+      {/* Main area */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top bar */}
+        <header className="shrink-0 h-12 border-b border-border/60 bg-background/80 backdrop-blur-sm flex items-center justify-between px-6">
+          <p className="text-sm font-medium text-muted-foreground truncate">
+            {lessonTitle}
+          </p>
+          <ThemeToggle />
+        </header>
 
-          {/* Mark complete / incomplete */}
-          <div className="flex items-center justify-between mb-6">
-            <CompleteButton
-              moduleSlug={currentModuleSlug}
-              lessonSlug={currentLessonSlug}
-            />
-            <span className="text-xs text-muted-foreground italic">
-              {lessonTitle}
-            </span>
-          </div>
+        {/* Scrollable content */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-2xl mx-auto px-8 py-10 animate-fade-up">
+            <article className="prose-lesson">{children}</article>
 
-          {/* Prev / Next nav */}
-          <div className="flex items-center justify-between">
-            {prev ? (
-              <Link
-                href={`/learn/${prev.moduleSlug}/${prev.slug}`}
-                className={buttonVariants({ variant: "outline" })}
-              >
-                <ChevronLeft className="size-4" />
-                {prev.title}
-              </Link>
-            ) : (
-              <div />
-            )}
-            {next ? (
-              <Link
-                href={`/learn/${next.moduleSlug}/${next.slug}`}
-                className={buttonVariants({ variant: "default" })}
-              >
-                {next.title}
-                <ChevronRight className="size-4" />
-              </Link>
-            ) : (
-              <div />
-            )}
+            {/* Bottom actions */}
+            <div className="mt-12 pt-8 border-t border-border/60 space-y-6">
+              <CompleteButton
+                moduleSlug={currentModuleSlug}
+                lessonSlug={currentLessonSlug}
+              />
+
+              {/* Prev / Next */}
+              <div className="flex items-center justify-between gap-4">
+                {prev ? (
+                  <Link
+                    href={`/learn/${prev.moduleSlug}/${prev.slug}`}
+                    className={buttonVariants({ variant: "outline", size: "sm" })}
+                  >
+                    <ChevronLeft className="size-3.5" />
+                    {prev.title}
+                  </Link>
+                ) : (
+                  <div />
+                )}
+                {next ? (
+                  <Link
+                    href={`/learn/${next.moduleSlug}/${next.slug}`}
+                    className={buttonVariants({ variant: "default", size: "sm" })}
+                  >
+                    {next.title}
+                    <ChevronRight className="size-3.5" />
+                  </Link>
+                ) : (
+                  <div />
+                )}
+              </div>
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

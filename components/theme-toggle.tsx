@@ -3,7 +3,6 @@
 import { useTheme } from "@/hooks/use-theme";
 import { Sun, Moon, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
 
 export function ThemeToggle({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
@@ -17,9 +16,11 @@ export function ThemeToggle({ className }: { className?: string }) {
   return (
     <button
       onClick={cycle}
-      aria-label="Toggle theme"
-      title={`Theme: ${theme}`}
-      className={cn(buttonVariants({ variant: "ghost", size: "icon" }), className)}
+      aria-label={`Theme: ${theme}. Click to cycle.`}
+      className={cn(
+        "size-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-150",
+        className
+      )}
     >
       {theme === "dark" ? (
         <Moon className="size-4" />

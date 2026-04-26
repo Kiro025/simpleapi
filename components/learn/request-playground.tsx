@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
-import { Send, ChevronDown, ChevronRight } from "lucide-react";
+import { Send, ChevronDown, ChevronRight, Loader2, Clock } from "lucide-react";
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -16,12 +16,35 @@ type Props = {
   description?: string;
 };
 
-const METHOD_COLORS: Record<HttpMethod, string> = {
-  GET: "text-blue-600 dark:text-blue-400",
-  POST: "text-green-600 dark:text-green-400",
-  PUT: "text-yellow-600 dark:text-yellow-400",
-  PATCH: "text-orange-600 dark:text-orange-400",
-  DELETE: "text-red-600 dark:text-red-400",
+const METHOD_STYLES: Record<
+  HttpMethod,
+  { text: string; bg: string; border: string }
+> = {
+  GET: {
+    text: "text-blue-600 dark:text-blue-400",
+    bg: "bg-blue-50 dark:bg-blue-950/40",
+    border: "border-blue-200 dark:border-blue-800",
+  },
+  POST: {
+    text: "text-emerald-600 dark:text-emerald-400",
+    bg: "bg-emerald-50 dark:bg-emerald-950/40",
+    border: "border-emerald-200 dark:border-emerald-800",
+  },
+  PUT: {
+    text: "text-amber-600 dark:text-amber-400",
+    bg: "bg-amber-50 dark:bg-amber-950/40",
+    border: "border-amber-200 dark:border-amber-800",
+  },
+  PATCH: {
+    text: "text-orange-600 dark:text-orange-400",
+    bg: "bg-orange-50 dark:bg-orange-950/40",
+    border: "border-orange-200 dark:border-orange-800",
+  },
+  DELETE: {
+    text: "text-red-600 dark:text-red-400",
+    bg: "bg-red-50 dark:bg-red-950/40",
+    border: "border-red-200 dark:border-red-800",
+  },
 };
 
 const METHODS: HttpMethod[] = ["GET", "POST", "PUT", "PATCH", "DELETE"];
@@ -76,11 +99,7 @@ export function RequestPlayground({
       }
 
       const init: RequestInit = { method, headers };
-      if (
-        method !== "GET" &&
-        method !== "DELETE" &&
-        bodyText.trim()
-      ) {
+      if (method !== "GET" && method !== "DELETE" && bodyText.trim()) {
         init.body = bodyText;
       }
 
@@ -116,58 +135,69 @@ export function RequestPlayground({
     }
   };
 
-  const statusColor = response
+  const statusInfo = response
     ? response.status < 300
-      ? "text-green-600 dark:text-green-400"
+      ? { color: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500" }
       : response.status < 400
-        ? "text-yellow-600 dark:text-yellow-400"
-        : "text-red-600 dark:text-red-400"
-    : "";
+        ? { color: "text-amber-600 dark:text-amber-400", dot: "bg-amber-500" }
+        : { color: "text-red-600 dark:text-red-400", dot: "bg-red-500" }
+    : null;
 
-  const bodyVisible =
-    method === "POST" || method === "PUT" || method === "PATCH";
+  const bodyVisible = method === "POST" || method === "PUT" || method === "PATCH";
+  const methodStyle = METHOD_STYLES[method];
 
   return (
-    <div className="rounded-xl border border-border bg-card my-6 overflow-hidden">
-      {/* Title bar */}
-      <div className="px-4 py-3 border-b border-border bg-muted/50 flex items-center gap-2">
-        <Send className="size-4 text-muted-foreground" />
-        <span className="font-medium text-sm">{title}</span>
+    <div className="rounded-xl border border-border bg-card overflow-hidden my-6 shadow-xs transition-shadow duration-300 hover:shadow-sm animate-scale-in">
+      {/* Header */}
+      <div className="flex items-center gap-2.5 px-4 py-2.5 border-b border-border bg-muted/40">
+        <div className="size-5 rounded-md bg-primary/15 flex items-center justify-center">
+          <Send className="size-2.5 text-primary" />
+        </div>
+        <span className="text-sm font-medium text-foreground">{title}</span>
       </div>
 
       <div className="p-4 space-y-3">
         {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed">{description}</p>
         )}
 
-        {/* Method + URL row */}
+        {/* Method + URL */}
         <div className="flex gap-2">
-          <select
-            value={method}
-            onChange={(e) => setMethod(e.target.value as HttpMethod)}
-            className={cn(
-              "rounded-md border border-border bg-background px-2 py-1.5 text-sm font-mono font-bold focus:outline-none focus:ring-2 focus:ring-ring",
-              METHOD_COLORS[method]
-            )}
-          >
-            {METHODS.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
+          <div className={cn("relative flex items-center rounded-lg border px-2.5 h-9", methodStyle.bg, methodStyle.border)}>
+            <select
+              value={method}
+              onChange={(e) => setMethod(e.target.value as HttpMethod)}
+              className={cn(
+                "appearance-none bg-transparent text-xs font-bold font-mono pr-1 focus:outline-none cursor-pointer",
+                methodStyle.text
+              )}
+            >
+              {METHODS.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </div>
           <input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            className="flex-1 rounded-md border border-border bg-background px-3 py-1.5 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring"
+            className="flex-1 h-9 rounded-lg border border-border bg-background px-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring/50 transition-shadow"
             placeholder="/api/playground/users"
           />
           <button
             onClick={send}
             disabled={loading}
-            className={buttonVariants({ variant: "default" })}
+            className={cn(
+              buttonVariants({ variant: "default", size: "sm" }),
+              "h-9 min-w-[72px] transition-all duration-150"
+            )}
           >
-            {loading ? "Sending…" : "Send"}
+            {loading ? (
+              <Loader2 className="size-3.5 animate-spin" />
+            ) : (
+              "Send"
+            )}
           </button>
         </div>
 
@@ -175,7 +205,7 @@ export function RequestPlayground({
         <div>
           <button
             onClick={() => setShowHeaders((v) => !v)}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors duration-150"
           >
             {showHeaders ? (
               <ChevronDown className="size-3" />
@@ -188,23 +218,24 @@ export function RequestPlayground({
             <textarea
               value={headersText}
               onChange={(e) => setHeadersText(e.target.value)}
-              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-ring resize-y"
+              className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-ring/50 resize-y transition-shadow animate-fade-in"
               rows={3}
               placeholder={"Content-Type: application/json\nAuthorization: Bearer token"}
             />
           )}
         </div>
 
-        {/* Body — only for methods that send one */}
+        {/* Body */}
         {bodyVisible && (
-          <div>
-            <p className="text-xs text-muted-foreground mb-1">
-              Request Body (JSON)
+          <div className="animate-fade-in">
+            <p className="text-xs font-medium text-muted-foreground mb-1.5">
+              Request Body
+              <span className="ml-1 text-muted-foreground/60 font-normal">JSON</span>
             </p>
             <textarea
               value={bodyText}
               onChange={(e) => setBodyText(e.target.value)}
-              className="w-full rounded-md border border-border bg-background px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-ring resize-y"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-ring/50 resize-y transition-shadow"
               rows={5}
               placeholder={'{"name": "Alice", "email": "alice@example.com"}'}
             />
@@ -213,26 +244,30 @@ export function RequestPlayground({
 
         {/* Error */}
         {error && (
-          <div className="rounded-md bg-destructive/10 border border-destructive/30 px-3 py-2 text-sm text-destructive">
+          <div className="rounded-lg bg-destructive/8 border border-destructive/25 px-3 py-2.5 text-sm text-destructive animate-fade-in">
             {error}
           </div>
         )}
 
-        {/* Response panel */}
-        {response && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <span className={cn("text-sm font-semibold tabular-nums", statusColor)}>
+        {/* Response */}
+        {response && statusInfo && (
+          <div className="space-y-2.5 animate-fade-up">
+            {/* Status bar */}
+            <div className="flex items-center gap-3 py-2 px-3 rounded-lg bg-muted/50 border border-border/60">
+              <span className={cn("flex items-center gap-1.5 text-sm font-semibold tabular-nums", statusInfo.color)}>
+                <span className={cn("size-1.5 rounded-full", statusInfo.dot)} />
                 {response.status} {response.statusText}
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="flex items-center gap-1 text-xs text-muted-foreground ml-auto">
+                <Clock className="size-3" />
                 {response.durationMs}ms
               </span>
             </div>
 
+            {/* Response headers toggle */}
             <button
               onClick={() => setShowResponseHeaders((v) => !v)}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors duration-150"
             >
               {showResponseHeaders ? (
                 <ChevronDown className="size-3" />
@@ -242,18 +277,24 @@ export function RequestPlayground({
               Response Headers
             </button>
             {showResponseHeaders && (
-              <div className="rounded-md bg-muted p-3 text-xs font-mono space-y-0.5">
+              <div className="rounded-lg bg-muted/50 border border-border/60 p-3 text-xs font-mono space-y-0.5 animate-fade-in">
                 {Object.entries(response.headers).map(([k, v]) => (
-                  <div key={k}>
-                    <span className="text-muted-foreground">{k}: </span>
-                    <span>{v}</span>
+                  <div key={k} className="flex gap-2">
+                    <span className="text-muted-foreground shrink-0">{k}:</span>
+                    <span className="text-foreground/80 break-all">{v}</span>
                   </div>
                 ))}
               </div>
             )}
 
-            <div className="rounded-md bg-muted p-3 overflow-x-auto">
-              <pre className="text-xs font-mono whitespace-pre-wrap">
+            {/* Response body */}
+            <div className="rounded-lg bg-muted/50 border border-border/60 overflow-hidden">
+              <div className="flex items-center justify-between px-3 py-1.5 border-b border-border/50 bg-muted/40">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                  Response Body
+                </span>
+              </div>
+              <pre className="p-3 text-xs font-mono whitespace-pre-wrap text-foreground/85 overflow-x-auto max-h-72 leading-relaxed">
                 {response.body === null
                   ? "(empty body — 204 No Content)"
                   : typeof response.body === "string"
