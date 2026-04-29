@@ -38,7 +38,7 @@ type Props = {
 export function Callout({ variant = "info", title, children }: Props) {
   const { icon: Icon, className } = VARIANT_CONFIG[variant];
   return (
-    <div className={cn("flex gap-3 rounded-lg border p-4 mb-4", className)}>
+    <div className={cn("flex gap-3 rounded-lg border p-4 my-5", className)}>
       <Icon className="size-5 shrink-0 mt-0.5" />
       <div>
         {title && <p className="font-semibold mb-1">{title}</p>}

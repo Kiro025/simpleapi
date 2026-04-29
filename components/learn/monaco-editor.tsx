@@ -52,7 +52,7 @@ export function MonacoEditor({
   };
 
   return (
-    <div className={cn("rounded-lg border border-border overflow-hidden mb-4", className)}>
+    <div className={cn("rounded-lg border border-border overflow-hidden my-5", className)}>
       {/* Toolbar */}
       <div className="flex items-center justify-between px-3 py-1.5 bg-muted border-b border-border">
         <span className="text-xs text-muted-foreground font-mono">

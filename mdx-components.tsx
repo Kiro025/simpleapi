@@ -14,12 +14,12 @@ export function useMDXComponents(): MDXComponents {
       </h1>
     ),
     h2: ({ children }) => (
-      <h2 className="text-xl font-semibold tracking-tight mb-3 mt-8 text-foreground">
+      <h2 className="text-xl font-bold tracking-tight mb-3 mt-8 text-foreground pl-3 border-l-[3px] border-primary/60">
         {children}
       </h2>
     ),
     h3: ({ children }) => (
-      <h3 className="text-base font-semibold mb-2 mt-6 text-foreground">
+      <h3 className="text-[15px] font-semibold mb-2 mt-5 text-foreground">
         {children}
       </h3>
     ),
@@ -32,7 +32,7 @@ export function useMDXComponents(): MDXComponents {
       </ul>
     ),
     ol: ({ children }) => (
-      <ol className="mb-4 space-y-1.5 text-foreground/85 text-[15px] pl-1 list-decimal list-inside">
+      <ol className="mb-4 space-y-1.5 text-foreground/85 text-[15px] pl-1">
         {children}
       </ol>
     ),
@@ -80,7 +80,7 @@ export function useMDXComponents(): MDXComponents {
     ),
     hr: () => <hr className="border-border/60 my-8" />,
     // Inline code vs fenced code blocks
-    code: ({ children, className }) => {
+    code: ({ children, className, ...props }) => {
       const isInline = !className;
       if (isInline) {
         return (
@@ -90,8 +90,9 @@ export function useMDXComponents(): MDXComponents {
         );
       }
       const language = className?.replace("language-", "") ?? "text";
+      const filename = (props as { filename?: string }).filename;
       return (
-        <CodeBlock language={language}>{String(children)}</CodeBlock>
+        <CodeBlock language={language} filename={filename}>{String(children)}</CodeBlock>
       );
     },
     pre: ({ children }) => <>{children}</>,
