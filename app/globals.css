@@ -127,6 +127,7 @@
   html {
     @apply font-sans;
     scroll-behavior: smooth;
+    font-size: 106.25%; /* 17px base — scales all rem values proportionally */
   }
   ::selection {
     background-color: oklch(0.52 0.22 264 / 0.2);

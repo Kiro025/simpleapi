@@ -19,20 +19,20 @@ export function useMDXComponents(): MDXComponents {
       </h2>
     ),
     h3: ({ children }) => (
-      <h3 className="text-[15px] font-semibold mb-2 mt-5 text-foreground">
+      <h3 className="text-[16px] font-semibold mb-2 mt-5 text-foreground">
         {children}
       </h3>
     ),
     p: ({ children }) => (
-      <p className="leading-7 mb-4 text-foreground/85 text-[15px]">{children}</p>
+      <p className="leading-7 mb-4 text-foreground/85 text-[16px]">{children}</p>
     ),
     ul: ({ children }) => (
-      <ul className="mb-4 space-y-1.5 text-foreground/85 text-[15px] pl-1">
+      <ul className="mb-4 space-y-1.5 text-foreground/85 text-[16px] pl-1">
         {children}
       </ul>
     ),
     ol: ({ children }) => (
-      <ol className="mb-4 space-y-1.5 text-foreground/85 text-[15px] pl-1">
+      <ol className="mb-4 space-y-1.5 text-foreground/85 text-[16px] pl-1">
         {children}
       </ol>
     ),
@@ -43,7 +43,7 @@ export function useMDXComponents(): MDXComponents {
       </li>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="border-l-2 border-primary/50 pl-4 italic text-muted-foreground mb-4 text-[15px]">
+      <blockquote className="border-l-2 border-primary/50 pl-4 italic text-muted-foreground mb-4 text-[16px]">
         {children}
       </blockquote>
     ),
@@ -58,7 +58,7 @@ export function useMDXComponents(): MDXComponents {
       </th>
     ),
     td: ({ children }) => (
-      <td className="border-b border-border/50 px-4 py-2.5 text-foreground/85 text-[13px]">
+      <td className="border-b border-border/50 px-4 py-2.5 text-foreground/85 text-[14px]">
         {children}
       </td>
     ),
@@ -84,7 +84,7 @@ export function useMDXComponents(): MDXComponents {
       const isInline = !className;
       if (isInline) {
         return (
-          <code className="bg-primary/8 border border-primary/15 px-1.5 py-0.5 rounded-md text-[13px] font-mono text-primary dark:text-primary">
+          <code className="bg-primary/8 border border-primary/15 px-1.5 py-0.5 rounded-md text-[14px] font-mono text-primary dark:text-primary">
             {children}
           </code>
         );

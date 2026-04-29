@@ -28,14 +28,14 @@ export async function CodeBlock({
     <div className="relative group rounded-xl border border-border overflow-hidden my-5 shadow-xs">
       {/* Toolbar */}
       <div className="flex items-center justify-between px-4 py-2 bg-muted/60 border-b border-border/60">
-        <span className="text-[11px] font-mono text-muted-foreground/70">
+        <span className="text-[12px] font-mono text-muted-foreground/70">
           {filename ?? language}
         </span>
         <CopyButton text={code} />
       </div>
       {/* Shiki outputs a full <pre><code> block */}
       <div
-        className="overflow-x-auto text-[13px] [&>pre]:p-4 [&>pre]:m-0 [&>pre]:bg-transparent [&>pre]:leading-relaxed"
+        className="overflow-x-auto text-[14px] [&>pre]:p-4 [&>pre]:m-0 [&>pre]:bg-transparent [&>pre]:leading-relaxed"
         dangerouslySetInnerHTML={{ __html: html }}
       />
     </div>

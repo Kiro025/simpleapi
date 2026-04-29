@@ -98,7 +98,7 @@ export function MonacoEditor({
           readOnly,
           minimap: { enabled: false },
           scrollBeyondLastLine: false,
-          fontSize: 13,
+          fontSize: 14,
           lineNumbers: "on",
           wordWrap: "on",
           tabSize: 2,

@@ -22,12 +22,12 @@ Each resource gets a collection URL and an item URL:
     <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Identifies</div>
   </div>
   <div className="grid grid-cols-[1fr_2fr] border-b border-border/50 items-center">
-    <div className="px-4 py-2.5 text-[13px]"><code>/tasks</code></div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">The entire collection of tasks</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>/tasks</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">The entire collection of tasks</div>
   </div>
   <div className="grid grid-cols-[1fr_2fr] items-center">
-    <div className="px-4 py-2.5 text-[13px]"><code>/tasks/:id</code></div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">A specific task</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>/tasks/:id</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">A specific task</div>
   </div>
 </div>
 
@@ -51,45 +51,45 @@ Now assign an HTTP method to each operation:
     </div>
     <div className="grid grid-cols-[100px_120px_1fr_1fr_1fr] border-b border-border/50 items-center">
       <div className="px-4 py-2.5"><MethodBadge method="GET" /></div>
-      <div className="px-4 py-2.5 text-[13px]"><code>/tasks</code></div>
-      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">List all tasks</div>
-      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">—</div>
-      <div className="px-4 py-2.5 text-[13px]">200 + <code>{"{ data: Task[] }"}</code></div>
+      <div className="px-4 py-2.5 text-[14px]"><code>/tasks</code></div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[14px]">List all tasks</div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[14px]">—</div>
+      <div className="px-4 py-2.5 text-[14px]">200 + <code>{"{ data: Task[] }"}</code></div>
     </div>
     <div className="grid grid-cols-[100px_120px_1fr_1fr_1fr] border-b border-border/50 items-center">
       <div className="px-4 py-2.5"><MethodBadge method="POST" /></div>
-      <div className="px-4 py-2.5 text-[13px]"><code>/tasks</code></div>
-      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Create a task</div>
-      <div className="px-4 py-2.5 text-[13px]"><code>{"{ title, status?, priority? }"}</code></div>
-      <div className="px-4 py-2.5 text-[13px]">201 + <code>{"{ data: Task }"}</code></div>
+      <div className="px-4 py-2.5 text-[14px]"><code>/tasks</code></div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Create a task</div>
+      <div className="px-4 py-2.5 text-[14px]"><code>{"{ title, status?, priority? }"}</code></div>
+      <div className="px-4 py-2.5 text-[14px]">201 + <code>{"{ data: Task }"}</code></div>
     </div>
     <div className="grid grid-cols-[100px_120px_1fr_1fr_1fr] border-b border-border/50 items-center">
       <div className="px-4 py-2.5"><MethodBadge method="GET" /></div>
-      <div className="px-4 py-2.5 text-[13px]"><code>/tasks/:id</code></div>
-      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Get one task</div>
-      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">—</div>
-      <div className="px-4 py-2.5 text-[13px]">200 + <code>{"{ data: Task }"}</code> or 404</div>
+      <div className="px-4 py-2.5 text-[14px]"><code>/tasks/:id</code></div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Get one task</div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[14px]">—</div>
+      <div className="px-4 py-2.5 text-[14px]">200 + <code>{"{ data: Task }"}</code> or 404</div>
     </div>
     <div className="grid grid-cols-[100px_120px_1fr_1fr_1fr] border-b border-border/50 items-center">
       <div className="px-4 py-2.5"><MethodBadge method="PUT" /></div>
-      <div className="px-4 py-2.5 text-[13px]"><code>/tasks/:id</code></div>
-      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Replace a task</div>
-      <div className="px-4 py-2.5 text-[13px]"><code>{"{ title, status, priority }"}</code></div>
-      <div className="px-4 py-2.5 text-[13px]">200 + <code>{"{ data: Task }"}</code> or 404</div>
+      <div className="px-4 py-2.5 text-[14px]"><code>/tasks/:id</code></div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Replace a task</div>
+      <div className="px-4 py-2.5 text-[14px]"><code>{"{ title, status, priority }"}</code></div>
+      <div className="px-4 py-2.5 text-[14px]">200 + <code>{"{ data: Task }"}</code> or 404</div>
     </div>
     <div className="grid grid-cols-[100px_120px_1fr_1fr_1fr] border-b border-border/50 items-center">
       <div className="px-4 py-2.5"><MethodBadge method="PATCH" /></div>
-      <div className="px-4 py-2.5 text-[13px]"><code>/tasks/:id</code></div>
-      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Partial update</div>
-      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">any subset of fields</div>
-      <div className="px-4 py-2.5 text-[13px]">200 + <code>{"{ data: Task }"}</code> or 404</div>
+      <div className="px-4 py-2.5 text-[14px]"><code>/tasks/:id</code></div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Partial update</div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[14px]">any subset of fields</div>
+      <div className="px-4 py-2.5 text-[14px]">200 + <code>{"{ data: Task }"}</code> or 404</div>
     </div>
     <div className="grid grid-cols-[100px_120px_1fr_1fr_1fr] items-center">
       <div className="px-4 py-2.5"><MethodBadge method="DELETE" /></div>
-      <div className="px-4 py-2.5 text-[13px]"><code>/tasks/:id</code></div>
-      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Delete a task</div>
-      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">—</div>
-      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">204 or 404</div>
+      <div className="px-4 py-2.5 text-[14px]"><code>/tasks/:id</code></div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Delete a task</div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[14px]">—</div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[14px]">204 or 404</div>
     </div>
   </div>
 </div>
@@ -118,16 +118,16 @@ Fields that are **server-assigned** (id, createdAt) must never be accepted from 
     <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Rule</div>
   </div>
   <div className="grid grid-cols-[120px_1fr] border-b border-border/50 items-start">
-    <div className="px-4 py-2.5 text-[13px]"><code>title</code></div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Required on POST and PUT. String. 1–200 characters.</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>title</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Required on POST and PUT. String. 1–200 characters.</div>
   </div>
   <div className="grid grid-cols-[120px_1fr] border-b border-border/50 items-start">
-    <div className="px-4 py-2.5 text-[13px]"><code>status</code></div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Optional. Must be <code>"todo"</code>, <code>"in-progress"</code>, or <code>"done"</code>. Defaults to <code>"todo"</code>.</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>status</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Optional. Must be <code>"todo"</code>, <code>"in-progress"</code>, or <code>"done"</code>. Defaults to <code>"todo"</code>.</div>
   </div>
   <div className="grid grid-cols-[120px_1fr] items-start">
-    <div className="px-4 py-2.5 text-[13px]"><code>priority</code></div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Optional. Must be <code>"low"</code>, <code>"medium"</code>, or <code>"high"</code>. Defaults to <code>"medium"</code>.</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>priority</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Optional. Must be <code>"low"</code>, <code>"medium"</code>, or <code>"high"</code>. Defaults to <code>"medium"</code>.</div>
   </div>
 </div>
 
@@ -140,24 +140,24 @@ Fields that are **server-assigned** (id, createdAt) must never be accepted from 
     <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Body</div>
   </div>
   <div className="grid grid-cols-[1fr_80px_2fr] border-b border-border/50 items-start">
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Task not found</div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">404</div>
-    <div className="px-4 py-2.5 text-[13px]"><code>{"{ error: \"Task with id 5 not found\" }"}</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Task not found</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">404</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>{"{ error: \"Task with id 5 not found\" }"}</code></div>
   </div>
   <div className="grid grid-cols-[1fr_80px_2fr] border-b border-border/50 items-start">
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Missing title</div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">422</div>
-    <div className="px-4 py-2.5 text-[13px]"><code>{"{ error: \"Validation failed\", message: \"title is required\", field: \"title\" }"}</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Missing title</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">422</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>{"{ error: \"Validation failed\", message: \"title is required\", field: \"title\" }"}</code></div>
   </div>
   <div className="grid grid-cols-[1fr_80px_2fr] border-b border-border/50 items-start">
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Invalid status</div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">422</div>
-    <div className="px-4 py-2.5 text-[13px]"><code>{"{ error: \"Validation failed\", message: \"status must be todo, in-progress, or done\" }"}</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Invalid status</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">422</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>{"{ error: \"Validation failed\", message: \"status must be todo, in-progress, or done\" }"}</code></div>
   </div>
   <div className="grid grid-cols-[1fr_80px_2fr] items-start">
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Bad JSON body</div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">400</div>
-    <div className="px-4 py-2.5 text-[13px]"><code>{"{ error: \"Invalid JSON body\" }"}</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Bad JSON body</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">400</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>{"{ error: \"Invalid JSON body\" }"}</code></div>
   </div>
 </div>
 
@@ -172,34 +172,34 @@ For the list endpoint (`GET /tasks`):
     <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Effect</div>
   </div>
   <div className="grid grid-cols-[120px_1fr_2fr] border-b border-border/50 items-center">
-    <div className="px-4 py-2.5 text-[13px]"><code>status</code></div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">string</div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Filter by status</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>status</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">string</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Filter by status</div>
   </div>
   <div className="grid grid-cols-[120px_1fr_2fr] border-b border-border/50 items-center">
-    <div className="px-4 py-2.5 text-[13px]"><code>priority</code></div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">string</div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Filter by priority</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>priority</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">string</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Filter by priority</div>
   </div>
   <div className="grid grid-cols-[120px_1fr_2fr] border-b border-border/50 items-center">
-    <div className="px-4 py-2.5 text-[13px]"><code>sort</code></div>
-    <div className="px-4 py-2.5 text-[13px]"><code>createdAt</code> | <code>priority</code></div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Sort field</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>sort</code></div>
+    <div className="px-4 py-2.5 text-[14px]"><code>createdAt</code> | <code>priority</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Sort field</div>
   </div>
   <div className="grid grid-cols-[120px_1fr_2fr] border-b border-border/50 items-center">
-    <div className="px-4 py-2.5 text-[13px]"><code>order</code></div>
-    <div className="px-4 py-2.5 text-[13px]"><code>asc</code> | <code>desc</code></div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Sort direction (default: <code>asc</code>)</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>order</code></div>
+    <div className="px-4 py-2.5 text-[14px]"><code>asc</code> | <code>desc</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Sort direction (default: <code>asc</code>)</div>
   </div>
   <div className="grid grid-cols-[120px_1fr_2fr] border-b border-border/50 items-center">
-    <div className="px-4 py-2.5 text-[13px]"><code>page</code></div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">number</div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Page number (default: <code>1</code>)</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>page</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">number</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Page number (default: <code>1</code>)</div>
   </div>
   <div className="grid grid-cols-[120px_1fr_2fr] items-center">
-    <div className="px-4 py-2.5 text-[13px]"><code>limit</code></div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">number</div>
-    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Items per page (default: <code>10</code>, max: <code>100</code>)</div>
+    <div className="px-4 py-2.5 text-[14px]"><code>limit</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">number</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Items per page (default: <code>10</code>, max: <code>100</code>)</div>
   </div>
 </div>
 

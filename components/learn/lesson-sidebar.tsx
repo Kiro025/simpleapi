@@ -46,7 +46,7 @@ export function LessonSidebar({
               style={{ width: `${percent}%` }}
             />
           </div>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {completedLessons} / {totalLessons} lessons
             {percent > 0 && (
               <span className="text-primary font-medium ml-1">
@@ -61,7 +61,7 @@ export function LessonSidebar({
       <nav className="flex-1 overflow-y-auto px-3 py-3 space-y-5">
         {curriculum.map((mod) => (
           <div key={mod.slug}>
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60 px-2 mb-1.5">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60 px-2 mb-1.5">
               {mod.title}
             </p>
             <ul className="space-y-0.5">
