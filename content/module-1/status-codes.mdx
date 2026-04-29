@@ -4,13 +4,38 @@ Every HTTP response includes a three-digit status code that tells the client wha
 
 ## The Five Families
 
-| Range | Category | Meaning |
-|-------|----------|---------|
-| 1xx | Informational | Request received, processing continues |
-| 2xx | Success | Request received, understood, and accepted |
-| 3xx | Redirection | Further action needed |
-| 4xx | Client Error | The client made a mistake |
-| 5xx | Server Error | The server failed to fulfill a valid request |
+<div className="my-5 rounded-xl border border-border overflow-hidden">
+  <div className="grid grid-cols-[70px_1fr_2fr] bg-muted/50 border-b border-border">
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Range</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Meaning</div>
+  </div>
+  <div className="grid grid-cols-[70px_1fr_2fr] border-b border-border/50 items-center">
+    <div className="px-4 py-2.5 text-[14px] font-mono font-semibold text-foreground/70">1xx</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Informational</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Request received, processing continues</div>
+  </div>
+  <div className="grid grid-cols-[70px_1fr_2fr] border-b border-border/50 items-center">
+    <div className="px-4 py-2.5 text-[14px] font-mono font-semibold text-green-600 dark:text-green-400">2xx</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Success</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Request received, understood, and accepted</div>
+  </div>
+  <div className="grid grid-cols-[70px_1fr_2fr] border-b border-border/50 items-center">
+    <div className="px-4 py-2.5 text-[14px] font-mono font-semibold text-blue-500 dark:text-blue-400">3xx</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Redirection</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Further action needed</div>
+  </div>
+  <div className="grid grid-cols-[70px_1fr_2fr] border-b border-border/50 items-center">
+    <div className="px-4 py-2.5 text-[14px] font-mono font-semibold text-yellow-600 dark:text-yellow-400">4xx</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Client Error</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">The client made a mistake</div>
+  </div>
+  <div className="grid grid-cols-[70px_1fr_2fr] items-center">
+    <div className="px-4 py-2.5 text-[14px] font-mono font-semibold text-destructive">5xx</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Server Error</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">The server failed to fulfill a valid request</div>
+  </div>
+</div>
 
 ## 2xx — Success
 

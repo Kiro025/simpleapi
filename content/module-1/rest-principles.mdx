@@ -45,12 +45,28 @@ Servers can send executable code to clients — e.g., JavaScript. The only optio
 
 The URL identifies the **resource**. The HTTP method carries the **action**. This is the core idea.
 
-| Less RESTful | More RESTful |
-|-------------|-------------|
-| `/getUser?id=1` | `GET /users/1` |
-| `/createUser` | `POST /users` |
-| `/deleteUser?id=1` | `DELETE /users/1` |
-| `/getAllUsers` | `GET /users` |
+<div className="my-5 rounded-xl border border-border overflow-hidden">
+  <div className="grid grid-cols-2 bg-muted/50 border-b border-border">
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-yellow-600 dark:text-yellow-400">❌ Less RESTful</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-green-600 dark:text-green-400">✅ More RESTful</div>
+  </div>
+  <div className="grid grid-cols-2 border-b border-border/50 items-center">
+    <div className="px-4 py-2.5 text-[14px]"><code>/getUser?id=1</code></div>
+    <div className="px-4 py-2.5 text-[14px]"><code>GET /users/1</code></div>
+  </div>
+  <div className="grid grid-cols-2 border-b border-border/50 items-center">
+    <div className="px-4 py-2.5 text-[14px]"><code>/createUser</code></div>
+    <div className="px-4 py-2.5 text-[14px]"><code>POST /users</code></div>
+  </div>
+  <div className="grid grid-cols-2 border-b border-border/50 items-center">
+    <div className="px-4 py-2.5 text-[14px]"><code>/deleteUser?id=1</code></div>
+    <div className="px-4 py-2.5 text-[14px]"><code>DELETE /users/1</code></div>
+  </div>
+  <div className="grid grid-cols-2 items-center">
+    <div className="px-4 py-2.5 text-[14px]"><code>/getAllUsers</code></div>
+    <div className="px-4 py-2.5 text-[14px]"><code>GET /users</code></div>
+  </div>
+</div>
 
 **Rule of thumb:** URLs should be nouns. Methods should be verbs. Never mix them.
 
@@ -73,7 +89,7 @@ Notice the `_links` field in the response — that's the beginning of HATEOAS. I
 
 Path parameters identify a **specific resource**. Query parameters modify **how a collection is returned**.
 
-```
+```text
 /tasks/42          ← path param: identifies task #42
 /tasks?status=done ← query param: filters the collection
 ```
@@ -84,14 +100,14 @@ Never use query params to identify a single resource (`/tasks?id=42`). It's tech
 
 When one resource belongs to another, nest the URLs:
 
-```
+```text
 /users/1/posts       ← all posts by user 1
 /users/1/posts/5     ← post #5 belonging to user 1
 ```
 
 Keep nesting shallow — two levels is usually the maximum before URLs become unwieldy. If you need deeper nesting, consider a flat structure with query params instead:
 
-```
+```text
 // Instead of /users/1/posts/5/comments/12
 GET /comments/12?postId=5   // much cleaner
 ```
@@ -100,7 +116,7 @@ GET /comments/12?postId=5   // much cleaner
 
 When you release a breaking change, you need to support both old and new clients. The simplest approach: put the version in the URL.
 
-```
+```text
 /api/v1/tasks   ← original clients still work
 /api/v2/tasks   ← new clients use this
 ```
@@ -109,12 +125,33 @@ Start with `/api/v1/` from day one — retrofitting version prefixes after clien
 
 ## Practical URL Audit
 
-| ❌ Non-RESTful | ✅ RESTful | Why |
-|--------------|-----------|-----|
-| `/getTasks` | `GET /tasks` | Verb in URL breaks Uniform Interface |
-| `/tasks?id=5` | `GET /tasks/5` | Query params are for filtering, not identifying |
-| `/task/create` | `POST /tasks` | Verb + singular noun; should be `POST /tasks` |
-| `/tasks/5/doComplete` | `PATCH /tasks/5 { status: "done" }` | Actions expressed via method + body, not URL |
+<div className="my-5 rounded-xl border border-border overflow-hidden">
+  <div className="grid grid-cols-[1fr_1fr_2fr] bg-muted/50 border-b border-border">
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-yellow-600 dark:text-yellow-400">❌ Non-RESTful</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-green-600 dark:text-green-400">✅ RESTful</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Why</div>
+  </div>
+  <div className="grid grid-cols-[1fr_1fr_2fr] border-b border-border/50 items-start">
+    <div className="px-4 py-2.5 text-[14px]"><code>/getTasks</code></div>
+    <div className="px-4 py-2.5 text-[14px]"><code>GET /tasks</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Verb in URL breaks Uniform Interface</div>
+  </div>
+  <div className="grid grid-cols-[1fr_1fr_2fr] border-b border-border/50 items-start">
+    <div className="px-4 py-2.5 text-[14px]"><code>/tasks?id=5</code></div>
+    <div className="px-4 py-2.5 text-[14px]"><code>GET /tasks/5</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Query params are for filtering, not identifying</div>
+  </div>
+  <div className="grid grid-cols-[1fr_1fr_2fr] border-b border-border/50 items-start">
+    <div className="px-4 py-2.5 text-[14px]"><code>/task/create</code></div>
+    <div className="px-4 py-2.5 text-[14px]"><code>POST /tasks</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Verb + singular noun; use <code>POST /tasks</code></div>
+  </div>
+  <div className="grid grid-cols-[1fr_1fr_2fr] items-start">
+    <div className="px-4 py-2.5 text-[14px]"><code>/tasks/5/doComplete</code></div>
+    <div className="px-4 py-2.5 text-[14px]"><code>{"PATCH /tasks/5 { status: \"done\" }"}</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[14px]">Actions via method + body, not URL</div>
+  </div>
+</div>
 
 <QuizCard
   question="REST requires that each request contains all the information the server needs, and the server stores no session state between requests. Which constraint is this?"
