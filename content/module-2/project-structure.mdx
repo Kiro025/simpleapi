@@ -6,7 +6,7 @@ When you start building, everything goes in one `server.js`. That's fine for lea
 
 Here's what a monolithic `server.js` looks like once you have two resources:
 
-```
+```text filename="server.js (monolithic)"
 server.js — 400 lines
   ├── express setup
   ├── data arrays (users, tasks)
@@ -133,7 +133,7 @@ When you eventually add a real database, you only change `data/tasks.js` — the
 
 ## The Full Folder Structure
 
-```
+```text filename="project layout"
 my-api/
 ├── server.js              ← entry point: setup, mount routes, listen
 ├── routes/

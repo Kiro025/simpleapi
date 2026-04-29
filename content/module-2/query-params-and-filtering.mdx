@@ -6,12 +6,33 @@ So far your list endpoints return everything. Real APIs filter, sort, and pagina
 
 These two are easy to confuse, but they serve different purposes:
 
-| | `req.params` | `req.query` |
-|--|-------------|-------------|
-| **Source** | URL path segments | URL after the `?` |
-| **Example URL** | `/tasks/42` | `/tasks?status=done` |
-| **Usage** | Identify a specific resource | Modify how a collection is returned |
-| **Required?** | Yes (part of the route pattern) | Optional |
+<div className="my-5 rounded-xl border border-border overflow-hidden">
+  <div className="grid grid-cols-3 bg-muted/50 border-b border-border">
+    <div className="px-4 py-2.5"></div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground"><code>req.params</code></div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground"><code>req.query</code></div>
+  </div>
+  <div className="grid grid-cols-3 border-b border-border/50 items-start">
+    <div className="px-4 py-2.5 text-[13px] font-semibold text-foreground">Source</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">URL path segments</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">URL after the <code>?</code></div>
+  </div>
+  <div className="grid grid-cols-3 border-b border-border/50 items-start">
+    <div className="px-4 py-2.5 text-[13px] font-semibold text-foreground">Example URL</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]"><code>/tasks/42</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]"><code>/tasks?status=done</code></div>
+  </div>
+  <div className="grid grid-cols-3 border-b border-border/50 items-start">
+    <div className="px-4 py-2.5 text-[13px] font-semibold text-foreground">Usage</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Identify a specific resource</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Modify how a collection is returned</div>
+  </div>
+  <div className="grid grid-cols-3 items-start">
+    <div className="px-4 py-2.5 text-[13px] font-semibold text-foreground">Required?</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Yes (part of the route pattern)</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Optional</div>
+  </div>
+</div>
 
 ```js filename="server.js"
 // req.params: /tasks/:id

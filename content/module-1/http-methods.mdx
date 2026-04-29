@@ -4,13 +4,44 @@ HTTP methods — also called **verbs** — tell the server what you want to do w
 
 ## The Five Core Methods
 
-| Method | Purpose | Has Body? | Idempotent? |
-|--------|---------|-----------|-------------|
-| GET | Read a resource | No | Yes |
-| POST | Create a resource | Yes | No |
-| PUT | Replace a resource entirely | Yes | Yes |
-| PATCH | Update part of a resource | Yes | No |
-| DELETE | Remove a resource | No | Yes |
+<div className="my-5 rounded-xl border border-border overflow-hidden">
+  <div className="grid grid-cols-4 bg-muted/50 border-b border-border">
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Method</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Purpose</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Has Body?</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Idempotent?</div>
+  </div>
+  <div className="grid grid-cols-4 border-b border-border/50 items-center">
+    <div className="px-4 py-2.5"><MethodBadge method="GET" /></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Read a resource</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">No</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Yes</div>
+  </div>
+  <div className="grid grid-cols-4 border-b border-border/50 items-center">
+    <div className="px-4 py-2.5"><MethodBadge method="POST" /></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Create a resource</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Yes</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">No</div>
+  </div>
+  <div className="grid grid-cols-4 border-b border-border/50 items-center">
+    <div className="px-4 py-2.5"><MethodBadge method="PUT" /></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Replace a resource entirely</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Yes</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Yes</div>
+  </div>
+  <div className="grid grid-cols-4 border-b border-border/50 items-center">
+    <div className="px-4 py-2.5"><MethodBadge method="PATCH" /></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Update part of a resource</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Yes</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">No</div>
+  </div>
+  <div className="grid grid-cols-4 items-center">
+    <div className="px-4 py-2.5"><MethodBadge method="DELETE" /></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Remove a resource</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">No</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Yes</div>
+  </div>
+</div>
 
 **Idempotent** means you can call it multiple times and get the same result. Calling `DELETE /users/1` twice ends up with user 1 not existing — whether you called it once or ten times.
 
@@ -87,13 +118,38 @@ A successful POST returns `201 Created`.
 
 Methods are also classified as **safe** or **unsafe**:
 
-| Method | Safe? | Meaning |
-|--------|-------|---------|
-| GET | ✅ Yes | Never modifies data |
-| POST | ❌ No | Creates data |
-| PUT | ❌ No | Replaces data |
-| PATCH | ❌ No | Modifies data |
-| DELETE | ❌ No | Removes data |
+<div className="my-5 rounded-xl border border-border overflow-hidden">
+  <div className="grid grid-cols-3 bg-muted/50 border-b border-border">
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Method</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Safe?</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Meaning</div>
+  </div>
+  <div className="grid grid-cols-3 border-b border-border/50 items-center">
+    <div className="px-4 py-2.5"><MethodBadge method="GET" /></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">✅ Yes</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Never modifies data</div>
+  </div>
+  <div className="grid grid-cols-3 border-b border-border/50 items-center">
+    <div className="px-4 py-2.5"><MethodBadge method="POST" /></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">❌ No</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Creates data</div>
+  </div>
+  <div className="grid grid-cols-3 border-b border-border/50 items-center">
+    <div className="px-4 py-2.5"><MethodBadge method="PUT" /></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">❌ No</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Replaces data</div>
+  </div>
+  <div className="grid grid-cols-3 border-b border-border/50 items-center">
+    <div className="px-4 py-2.5"><MethodBadge method="PATCH" /></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">❌ No</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Modifies data</div>
+  </div>
+  <div className="grid grid-cols-3 items-center">
+    <div className="px-4 py-2.5"><MethodBadge method="DELETE" /></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">❌ No</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Removes data</div>
+  </div>
+</div>
 
 **Safe** methods can be freely retried, prefetched, and cached. Browsers and CDNs automatically cache GET responses. They never cache POST or DELETE — because those change state.
 

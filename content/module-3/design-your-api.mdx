@@ -16,10 +16,20 @@ Start with one resource and get it right. You're building the **Tasks API**.
 
 Each resource gets a collection URL and an item URL:
 
-| URL | Identifies |
-|-----|-----------|
-| `/tasks` | The entire collection of tasks |
-| `/tasks/:id` | A specific task |
+<div className="my-5 rounded-xl border border-border overflow-hidden">
+  <div className="grid grid-cols-[1fr_2fr] bg-muted/50 border-b border-border">
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">URL</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Identifies</div>
+  </div>
+  <div className="grid grid-cols-[1fr_2fr] border-b border-border/50 items-center">
+    <div className="px-4 py-2.5 text-[13px]"><code>/tasks</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">The entire collection of tasks</div>
+  </div>
+  <div className="grid grid-cols-[1fr_2fr] items-center">
+    <div className="px-4 py-2.5 text-[13px]"><code>/tasks/:id</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">A specific task</div>
+  </div>
+</div>
 
 Rules:
 - Plural nouns: `/tasks`, not `/task`
@@ -30,14 +40,59 @@ Rules:
 
 Now assign an HTTP method to each operation:
 
-| Method | URL | What it does | Request body | Response |
-|--------|-----|-------------|-------------|---------|
-| GET | `/tasks` | List all tasks | — | 200 + `{ data: Task[] }` |
-| POST | `/tasks` | Create a task | `{ title, status?, priority? }` | 201 + `{ data: Task }` |
-| GET | `/tasks/:id` | Get one task | — | 200 + `{ data: Task }` or 404 |
-| PUT | `/tasks/:id` | Replace a task | `{ title, status, priority }` | 200 + `{ data: Task }` or 404 |
-| PATCH | `/tasks/:id` | Partial update | any subset of fields | 200 + `{ data: Task }` or 404 |
-| DELETE | `/tasks/:id` | Delete a task | — | 204 or 404 |
+<div className="my-5 rounded-xl border border-border overflow-x-auto">
+  <div className="min-w-[640px]">
+    <div className="grid grid-cols-[100px_120px_1fr_1fr_1fr] bg-muted/50 border-b border-border">
+      <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Method</div>
+      <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">URL</div>
+      <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">What it does</div>
+      <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Request body</div>
+      <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Response</div>
+    </div>
+    <div className="grid grid-cols-[100px_120px_1fr_1fr_1fr] border-b border-border/50 items-center">
+      <div className="px-4 py-2.5"><MethodBadge method="GET" /></div>
+      <div className="px-4 py-2.5 text-[13px]"><code>/tasks</code></div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">List all tasks</div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">—</div>
+      <div className="px-4 py-2.5 text-[13px]">200 + <code>{"{ data: Task[] }"}</code></div>
+    </div>
+    <div className="grid grid-cols-[100px_120px_1fr_1fr_1fr] border-b border-border/50 items-center">
+      <div className="px-4 py-2.5"><MethodBadge method="POST" /></div>
+      <div className="px-4 py-2.5 text-[13px]"><code>/tasks</code></div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Create a task</div>
+      <div className="px-4 py-2.5 text-[13px]"><code>{"{ title, status?, priority? }"}</code></div>
+      <div className="px-4 py-2.5 text-[13px]">201 + <code>{"{ data: Task }"}</code></div>
+    </div>
+    <div className="grid grid-cols-[100px_120px_1fr_1fr_1fr] border-b border-border/50 items-center">
+      <div className="px-4 py-2.5"><MethodBadge method="GET" /></div>
+      <div className="px-4 py-2.5 text-[13px]"><code>/tasks/:id</code></div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Get one task</div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">—</div>
+      <div className="px-4 py-2.5 text-[13px]">200 + <code>{"{ data: Task }"}</code> or 404</div>
+    </div>
+    <div className="grid grid-cols-[100px_120px_1fr_1fr_1fr] border-b border-border/50 items-center">
+      <div className="px-4 py-2.5"><MethodBadge method="PUT" /></div>
+      <div className="px-4 py-2.5 text-[13px]"><code>/tasks/:id</code></div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Replace a task</div>
+      <div className="px-4 py-2.5 text-[13px]"><code>{"{ title, status, priority }"}</code></div>
+      <div className="px-4 py-2.5 text-[13px]">200 + <code>{"{ data: Task }"}</code> or 404</div>
+    </div>
+    <div className="grid grid-cols-[100px_120px_1fr_1fr_1fr] border-b border-border/50 items-center">
+      <div className="px-4 py-2.5"><MethodBadge method="PATCH" /></div>
+      <div className="px-4 py-2.5 text-[13px]"><code>/tasks/:id</code></div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Partial update</div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">any subset of fields</div>
+      <div className="px-4 py-2.5 text-[13px]">200 + <code>{"{ data: Task }"}</code> or 404</div>
+    </div>
+    <div className="grid grid-cols-[100px_120px_1fr_1fr_1fr] items-center">
+      <div className="px-4 py-2.5"><MethodBadge method="DELETE" /></div>
+      <div className="px-4 py-2.5 text-[13px]"><code>/tasks/:id</code></div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Delete a task</div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">—</div>
+      <div className="px-4 py-2.5 text-foreground/85 text-[13px]">204 or 404</div>
+    </div>
+  </div>
+</div>
 
 ## Step 4: Define Your Data Model
 
@@ -57,39 +112,102 @@ Fields that are **server-assigned** (id, createdAt) must never be accepted from 
 
 ## Step 5: Define Validation Rules
 
-| Field | Rule |
-|-------|------|
-| `title` | Required on POST and PUT. String. 1–200 characters. |
-| `status` | Optional. Must be `"todo"`, `"in-progress"`, or `"done"`. Defaults to `"todo"`. |
-| `priority` | Optional. Must be `"low"`, `"medium"`, or `"high"`. Defaults to `"medium"`. |
+<div className="my-5 rounded-xl border border-border overflow-hidden">
+  <div className="grid grid-cols-[120px_1fr] bg-muted/50 border-b border-border">
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Field</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Rule</div>
+  </div>
+  <div className="grid grid-cols-[120px_1fr] border-b border-border/50 items-start">
+    <div className="px-4 py-2.5 text-[13px]"><code>title</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Required on POST and PUT. String. 1–200 characters.</div>
+  </div>
+  <div className="grid grid-cols-[120px_1fr] border-b border-border/50 items-start">
+    <div className="px-4 py-2.5 text-[13px]"><code>status</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Optional. Must be <code>"todo"</code>, <code>"in-progress"</code>, or <code>"done"</code>. Defaults to <code>"todo"</code>.</div>
+  </div>
+  <div className="grid grid-cols-[120px_1fr] items-start">
+    <div className="px-4 py-2.5 text-[13px]"><code>priority</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Optional. Must be <code>"low"</code>, <code>"medium"</code>, or <code>"high"</code>. Defaults to <code>"medium"</code>.</div>
+  </div>
+</div>
 
 ## Step 6: Define Error Responses
 
-| Scenario | Status | Body |
-|----------|--------|------|
-| Task not found | 404 | `{ error: "Task with id 5 not found" }` |
-| Missing title | 422 | `{ error: "Validation failed", message: "title is required", field: "title" }` |
-| Invalid status value | 422 | `{ error: "Validation failed", message: "status must be todo, in-progress, or done" }` |
-| Bad JSON body | 400 | `{ error: "Invalid JSON body" }` |
+<div className="my-5 rounded-xl border border-border overflow-hidden">
+  <div className="grid grid-cols-[1fr_80px_2fr] bg-muted/50 border-b border-border">
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Scenario</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Body</div>
+  </div>
+  <div className="grid grid-cols-[1fr_80px_2fr] border-b border-border/50 items-start">
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Task not found</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">404</div>
+    <div className="px-4 py-2.5 text-[13px]"><code>{"{ error: \"Task with id 5 not found\" }"}</code></div>
+  </div>
+  <div className="grid grid-cols-[1fr_80px_2fr] border-b border-border/50 items-start">
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Missing title</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">422</div>
+    <div className="px-4 py-2.5 text-[13px]"><code>{"{ error: \"Validation failed\", message: \"title is required\", field: \"title\" }"}</code></div>
+  </div>
+  <div className="grid grid-cols-[1fr_80px_2fr] border-b border-border/50 items-start">
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Invalid status</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">422</div>
+    <div className="px-4 py-2.5 text-[13px]"><code>{"{ error: \"Validation failed\", message: \"status must be todo, in-progress, or done\" }"}</code></div>
+  </div>
+  <div className="grid grid-cols-[1fr_80px_2fr] items-start">
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Bad JSON body</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">400</div>
+    <div className="px-4 py-2.5 text-[13px]"><code>{"{ error: \"Invalid JSON body\" }"}</code></div>
+  </div>
+</div>
 
 ## Step 7: Define Query Parameter Support
 
 For the list endpoint (`GET /tasks`):
 
-| Param | Type | Effect |
-|-------|------|--------|
-| `status` | string | Filter by status |
-| `priority` | string | Filter by priority |
-| `sort` | `createdAt` \| `priority` | Sort field |
-| `order` | `asc` \| `desc` | Sort direction (default: `asc`) |
-| `page` | number | Page number (default: `1`) |
-| `limit` | number | Items per page (default: `10`, max: `100`) |
+<div className="my-5 rounded-xl border border-border overflow-hidden">
+  <div className="grid grid-cols-[120px_1fr_2fr] bg-muted/50 border-b border-border">
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Param</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Type</div>
+    <div className="px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Effect</div>
+  </div>
+  <div className="grid grid-cols-[120px_1fr_2fr] border-b border-border/50 items-center">
+    <div className="px-4 py-2.5 text-[13px]"><code>status</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">string</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Filter by status</div>
+  </div>
+  <div className="grid grid-cols-[120px_1fr_2fr] border-b border-border/50 items-center">
+    <div className="px-4 py-2.5 text-[13px]"><code>priority</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">string</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Filter by priority</div>
+  </div>
+  <div className="grid grid-cols-[120px_1fr_2fr] border-b border-border/50 items-center">
+    <div className="px-4 py-2.5 text-[13px]"><code>sort</code></div>
+    <div className="px-4 py-2.5 text-[13px]"><code>createdAt</code> | <code>priority</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Sort field</div>
+  </div>
+  <div className="grid grid-cols-[120px_1fr_2fr] border-b border-border/50 items-center">
+    <div className="px-4 py-2.5 text-[13px]"><code>order</code></div>
+    <div className="px-4 py-2.5 text-[13px]"><code>asc</code> | <code>desc</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Sort direction (default: <code>asc</code>)</div>
+  </div>
+  <div className="grid grid-cols-[120px_1fr_2fr] border-b border-border/50 items-center">
+    <div className="px-4 py-2.5 text-[13px]"><code>page</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">number</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Page number (default: <code>1</code>)</div>
+  </div>
+  <div className="grid grid-cols-[120px_1fr_2fr] items-center">
+    <div className="px-4 py-2.5 text-[13px]"><code>limit</code></div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">number</div>
+    <div className="px-4 py-2.5 text-foreground/85 text-[13px]">Items per page (default: <code>10</code>, max: <code>100</code>)</div>
+  </div>
+</div>
 
 ## The Completed Spec
 
 This is your blueprint. Before writing any code, you can hand this spec to another developer (or a frontend team) and they know exactly what to expect:
 
-```
+```text filename="tasks-api-spec.txt"
 Tasks API v1
 
 Base URL: /api/tasks

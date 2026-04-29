@@ -82,6 +82,10 @@ All these work as JSX inside any `.mdx` file without importing:
 - Remark/rehype plugins must be strings, not function references
 - MDX imports must be static — no `import(\`./path/${var}.mdx\`)`
 
+### MDX Content Rules
+- **No remark-gfm** is configured → markdown table syntax (`| col |`) renders as raw pipe-separated text, not a table. Always use JSX grid divs for tables (see existing lessons for the pattern).
+- **Fenced code blocks must have a language.** A bare ` ``` ` block has no `className`, so the `code` component treats it as inline code. Always specify at least ` ```text ` for plain/tree blocks. Use `filename="..."` as a metadata attribute for the toolbar label.
+
 ### Dark Mode
 - Toggled by `.dark` class on `<html>`  
 - `app/layout.tsx` has a blocking inline script to prevent flash of wrong theme
